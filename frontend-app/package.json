@@ -45,6 +45,8 @@
     "typescript-eslint": "^8.39.1",
     "vite": "^7.1.2",
     "vitest": "^3.2.4",
-    "whatwg-fetch": "^3.6.20"
+    "whatwg-fetch": "^3.6.20",
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0"
   }
 }
