@@ -10,9 +10,11 @@ export default defineConfig({
     globals: true,
     css: true,
     coverage: {
+      provider: 'v8',                // ← bitno
+      reportsDirectory: './coverage',
       reporter: ['text', 'html', 'lcov'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/main.tsx', 'src/vite-env.d.ts']
-    }
+      exclude: ['src/__tests__/**', '**/*.d.ts'],
+    },
   }
 })

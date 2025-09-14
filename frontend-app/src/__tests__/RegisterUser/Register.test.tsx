@@ -112,7 +112,7 @@ describe('Register', () => {
   it('shows loading state, disables button, and prevents double submit', async () => {
     let resolve!: (v: unknown) => void
     const deferred = new Promise((res) => (resolve = res))
-    mockedRegisterUser.mockImplementation(() => deferred as any)
+    mockedRegisterUser.mockImplementation(() => deferred as Promise<string>)
 
     renderWithTheme(<Register />)
     const u = userEvent.setup()

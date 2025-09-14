@@ -11,7 +11,7 @@ describe('registerUser', () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       text: () => Promise.resolve(mockResponse),
-    }) as any
+    })
 
     const body: RegisterRequest = {
       username: 'anja',
@@ -40,9 +40,9 @@ describe('registerUser', () => {
       ok: false,
       text: () => Promise.resolve('Invalid data'),
       status: 400,
-    }) as any
+    })
 
-    await expect(registerUser({} as any)).rejects.toThrow('Invalid data')
+    await expect(registerUser({} as RegisterRequest)).rejects.toThrow('Invalid data')
   })
 
   it('throws error with HTTP status if response text is empty', async () => {
@@ -50,8 +50,8 @@ describe('registerUser', () => {
       ok: false,
       text: () => Promise.resolve(''),
       status: 500,
-    }) as any
+    })
 
-    await expect(registerUser({} as any)).rejects.toThrow('HTTP 500')
+    await expect(registerUser({} as RegisterRequest)).rejects.toThrow('HTTP 500')
   })
 })

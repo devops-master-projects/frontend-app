@@ -70,8 +70,9 @@ export default function Register() {
         email: '',
         address: '',
       }));
-    } catch (err: any) {
-      setErrorMsg(err?.message ?? 'Registration failed');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorMsg(msg || 'Registration failed');
     } finally {
       setSubmitting(false);
     }
