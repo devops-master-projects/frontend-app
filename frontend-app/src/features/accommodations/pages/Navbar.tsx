@@ -17,7 +17,7 @@ export default function Navbar() {
                 <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                     <IconButton
                         component={RouterLink}
-                        to="/"
+                        to="/accommodations"
                         color="inherit"
                         sx={{ fontWeight: 600 }}
                     >
@@ -31,6 +31,15 @@ export default function Navbar() {
                         sx={{ fontWeight: 600 }}
                     >
                         New Accommodation
+                    </Button>
+
+                    <Button
+                        component={RouterLink}
+                        to="/accommodations/amenity/new"
+                        color="inherit"
+                        sx={{ fontWeight: 600 }}
+                    >
+                        New Amenity
                     </Button>
                 </Box>
                 <Typography

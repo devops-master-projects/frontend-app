@@ -32,6 +32,7 @@ export type AccommodationRequestDto = {
     autoConfirm: boolean;
     pricingMode: string;
     photos: string[];
+    amenities: string[];
 };
 
 

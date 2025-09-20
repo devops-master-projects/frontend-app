@@ -91,6 +91,8 @@ export default function AccommodationCard({ accommodation }: Props) {
 
             <CardActions>
                 <Button size="small">DETAILS</Button>
+                <Button size="small">EDIT</Button>
+
             </CardActions>
         </Card>
     );

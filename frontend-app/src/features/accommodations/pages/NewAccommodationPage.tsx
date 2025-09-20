@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {
     Container,
     Typography,
@@ -9,6 +9,10 @@ import {
     Checkbox,
     FormControlLabel,
     MenuItem, Snackbar,
+    FormControl,
+    InputLabel,
+    Select,
+    ListItemText,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { AccommodationRequestDto } from "../api/accommodationsApi";
@@ -17,6 +21,8 @@ import Grid from "@mui/material/Grid";
 import {createAccommodation, uploadPhotoToCloudinary} from "../api/accommodationsApi";
 import {useNavigate} from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
+import type {AmenityResponseDto} from "../api/amenitiesApi.ts";
+import {fetchAmenities} from "../api/amenitiesApi.ts";
 
 export default function NewAccommodationPage() {
     const theme = useTheme();
@@ -31,6 +37,7 @@ export default function NewAccommodationPage() {
         autoConfirm: false,
         pricingMode: "FIXED",
         photos: [],
+        amenities: []
     });
 
     const [localPhotos, setLocalPhotos] = useState<File[]>([]);
@@ -56,6 +63,14 @@ export default function NewAccommodationPage() {
             setLocalPhotos((prev) => [...prev, ...files]);
         }
     };
+
+
+    const [allAmenities, setAllAmenities] = useState<AmenityResponseDto[]>([]);
+
+    useEffect(() => {
+        fetchAmenities().then(setAllAmenities).catch(console.error);
+    }, []);
+
 
     const handleSubmit = async () => {
         const newErrors: Record<string, string> = {};
@@ -86,6 +101,7 @@ export default function NewAccommodationPage() {
 
             // Request ka backendu
             const request = { ...form, photos: uploadedUrls };
+            console.log("request: ", request);
             await createAccommodation(request);
 
             setSuccess(true);
@@ -271,7 +287,7 @@ export default function NewAccommodationPage() {
                                     label="Description"
                                     fullWidth
                                     multiline
-                                    minRows={5} // veće polje
+                                    minRows={3} // veće polje
                                     value={form.description}
                                     error={Boolean(errors.description)}
                                     helperText={errors.description}
@@ -279,6 +295,35 @@ export default function NewAccommodationPage() {
                                 />
                             </Grid>
                         </Grid>
+
+                        <FormControl fullWidth sx={{ mt: 3 }}>
+                            <InputLabel id="amenities-label">Amenities</InputLabel>
+                            <Select
+                                labelId="amenities-label"
+                                multiple
+                                value={form.amenities || []}
+                                onChange={(e) =>
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        amenities: e.target.value as string[],
+                                    }))
+                                }
+                                renderValue={(selected) => {
+                                    const names = allAmenities
+                                        .filter((a) => selected.includes(a.id))
+                                        .map((a) => a.name);
+                                    return names.join(", ");
+                                }}
+                            >
+                                {allAmenities.map((amenity) => (
+                                    <MenuItem key={amenity.id} value={amenity.id}>
+                                        <Checkbox checked={form.amenities?.includes(amenity.id)} />
+                                        <ListItemText primary={amenity.name} />
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
 
                         <Grid container spacing={2} sx={{ mt: 2 }}>
                             <Grid size={12}>
