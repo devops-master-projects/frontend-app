@@ -19,7 +19,7 @@ export default function AccommodationCard({ accommodation }: Props) {
     const maxSteps = accommodation.urlPhotos?.length ?? 0;
 
     return (
-        <Card sx={{ maxWidth: 350 }}>
+        <Card sx={{ maxWidth: 350, minHeight: 500, maxHeight: 500}}>
             {maxSteps > 0 && (
                 <>
                     <SwipeableViews
@@ -38,33 +38,32 @@ export default function AccommodationCard({ accommodation }: Props) {
                         ))}
                     </SwipeableViews>
 
-                    {maxSteps > 1 && (
-                        <MobileStepper
-                            steps={maxSteps}
-                            position="static"
-                            activeStep={activeStep}
-                            nextButton={
-                                <Button
-                                    size="small"
-                                    onClick={() => setActiveStep((prev) => prev + 1)}
-                                    disabled={activeStep === maxSteps - 1}
-                                >
-                                    Next <KeyboardArrowRight />
-                                </Button>
-                            }
-                            backButton={
-                                <Button
-                                    size="small"
-                                    onClick={() => setActiveStep((prev) => prev - 1)}
-                                    disabled={activeStep === 0}
-                                >
-                                    <KeyboardArrowLeft /> Back
-                                </Button>
-                            }
-                        />
-                    )}
+                    <MobileStepper
+                        steps={maxSteps}
+                        position="static"
+                        activeStep={activeStep}
+                        nextButton={
+                            <Button
+                                size="small"
+                                onClick={() => setActiveStep((prev) => prev + 1)}
+                                disabled={activeStep === maxSteps - 1 || maxSteps === 1}
+                            >
+                                Next <KeyboardArrowRight />
+                            </Button>
+                        }
+                        backButton={
+                            <Button
+                                size="small"
+                                onClick={() => setActiveStep((prev) => prev - 1)}
+                                disabled={activeStep === 0 || maxSteps === 1}
+                            >
+                                <KeyboardArrowLeft /> Back
+                            </Button>
+                        }
+                    />
                 </>
             )}
+
 
             <CardContent>
                 <Typography gutterBottom variant="h6">

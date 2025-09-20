@@ -14,7 +14,6 @@ export default function Navbar() {
             }}
         >
             <Toolbar sx={{ position: "relative" }}>
-                {/* Dugmići levo */}
                 <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                     <IconButton
                         component={RouterLink}
@@ -34,8 +33,6 @@ export default function Navbar() {
                         New Accommodation
                     </Button>
                 </Box>
-
-                {/* Naslov centriran */}
                 <Typography
                     variant="h6"
                     component="div"
