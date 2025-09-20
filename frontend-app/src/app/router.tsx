@@ -4,6 +4,7 @@ import Register from "../features/auth/pages/Register";
 import AccommodationDashboard from "../features/accommodations/pages/AccommodationDashboard";
 import NewAccommodationPage from "../features/accommodations/pages/NewAccommodationPage";
 import NewAmenityPage from "../features/accommodations/pages/NewAmenityPage.tsx";
+import EditAccommodationPage from "../features/accommodations/pages/EditAccommodationPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -23,9 +24,14 @@ const router = createBrowserRouter([
     element: <NewAccommodationPage />,
   },
   {
+    path: "/accommodations/:id/edit",
+    element: <EditAccommodationPage />,
+  },
+  {
     path: "/accommodations/amenity/new",
     element: <NewAmenityPage />,
   },
+
 ]);
 
 export function AppRouter() {

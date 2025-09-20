@@ -1,3 +1,5 @@
+import type {AmenityResponseDto} from "./amenitiesApi.ts";
+
 export type LocationDto = {
     country: string;
     city: string;
@@ -13,6 +15,9 @@ export type AccommodationResponseDto = {
     description: string;
     urlPhotos: string[];
     location: LocationDto;
+    autoConfirm: boolean;
+    pricingMode: string;
+    amenities: AmenityResponseDto[];
 };
 
 export type LocationDto = {
@@ -23,7 +28,7 @@ export type LocationDto = {
 };
 
 export type AccommodationRequestDto = {
-    hostId: string;
+    hostId?: string;
     name: string;
     location: LocationDto;
     minGuests: number;
@@ -90,6 +95,45 @@ export async function createAccommodation(
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `Backend error (HTTP ${res.status})`);
+    }
+
+    return res.json();
+}
+
+export async function fetchAccommodationById(id: string): Promise<AccommodationResponseDto> {
+    const res = await fetch(
+        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${id}`,
+        {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        }
+    );
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+
+    return res.json();
+}
+
+// PUT update accommodation
+export async function updateAccommodation(
+    id: string,
+    request: AccommodationRequestDto
+): Promise<AccommodationResponseDto> {
+    const res = await fetch(
+        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${id}`,
+        {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(request),
+        }
+    );
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
     }
 
     return res.json();
