@@ -50,5 +50,14 @@
     "vite": "^7.1.2",
     "vitest": "^3.2.4",
     "whatwg-fetch": "^3.6.20"
+  },
+  "overrides": {
+    "react-swipeable-views": {
+      "react": "^19.0.0"
+    },
+    "react-event-listener": {
+      "react": "^19.0.0"
+    }
   }
+
 }
