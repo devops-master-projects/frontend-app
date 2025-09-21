@@ -101,6 +101,7 @@ export async function createAccommodation(
 }
 
 export async function fetchAccommodationById(id: string): Promise<AccommodationResponseDto> {
+
     const res = await fetch(
         `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${id}`,
         {

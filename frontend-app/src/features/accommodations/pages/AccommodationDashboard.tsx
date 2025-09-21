@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {ReactElement, useEffect, useState} from "react";
 import {
     Container,
     Grid,
@@ -55,7 +55,7 @@ export default function AccommodationDashboard() {
                 {paginatedAccommodations.map((a) => (
                     <Grid item xs={12} sm={6} md={4} key={a.id}>
                         <AccommodationCard accommodation={a} />
-                    </Grid>
+                    </Grid> as ReactElement
                 ))}
             </Grid>
 

@@ -92,7 +92,13 @@ export default function AccommodationCard({ accommodation }: Props) {
             </CardContent>
 
             <CardActions>
-                <Button size="small">DETAILS</Button>
+                <Button
+                    size="small"
+                    component={Link}
+                    to={`/accommodations/${accommodation.id}`}
+                >
+                    DETAILS
+                </Button>
                 <Button
                     size="small"
                     component={Link}

@@ -132,7 +132,7 @@ export default function EditAccommodationPage() {
 
             setSuccess(true);
             setTimeout(() => {
-                navigate("/accommodations");
+                navigate(`/accommodations/${id}`);
             }, 2000);
         } catch (err) {
             console.error("Error updating accommodation:", err);
