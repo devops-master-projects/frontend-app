@@ -1,4 +1,5 @@
-import {ReactElement, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
+import type { ReactElement } from "react";
 import {
     Container,
     Typography,
@@ -15,7 +16,7 @@ import {
     Select,
     ListItemText,
 } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Unstable_Grid2";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";

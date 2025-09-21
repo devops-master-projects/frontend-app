@@ -2,11 +2,11 @@ import {useEffect, useState} from "react";
 import  type {ReactElement} from "react";
 import {
     Container,
-    Grid,
     Typography,
     Pagination,
     Box,
 } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 import { fetchAccommodations } from "../api/accommodationsApi";
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import AccommodationCard from "./AccommodationCard";
