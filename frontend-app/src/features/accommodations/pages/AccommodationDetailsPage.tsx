@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import SwipeableViews from "react-swipeable-views";
+
 import { useNavigate, useParams } from "react-router-dom";
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import { fetchAccommodationById } from "../api/accommodationsApi";
