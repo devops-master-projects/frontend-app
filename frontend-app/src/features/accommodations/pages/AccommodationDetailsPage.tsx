@@ -9,7 +9,7 @@ import {
     Chip,
     Divider,
 } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Unstable_Grid2";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
