@@ -52,6 +52,7 @@
     "whatwg-fetch": "^3.6.20"
   },
   "overrides": {
+    "yaml": "^2.8.1",
     "react-swipeable-views": {
       "react": "^19.0.0"
     },
