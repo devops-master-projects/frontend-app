@@ -17,7 +17,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import type { AccommodationRequestDto } from "../api/accommodationsApi";
 import Navbar from "./Navbar.tsx";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from "@mui/material/Grid";
 import {createAccommodation, uploadPhotoToCloudinary} from "../api/accommodationsApi";
 import {useNavigate} from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
