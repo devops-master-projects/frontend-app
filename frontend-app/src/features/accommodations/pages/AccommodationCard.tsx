@@ -12,8 +12,6 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import SwipeableViews from 'react-swipeable-views';
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import { Link } from "react-router-dom";
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
 type Props = { accommodation: AccommodationResponseDto };
 
 export default function AccommodationCard({ accommodation }: Props) {
