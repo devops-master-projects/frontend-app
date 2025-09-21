@@ -9,7 +9,7 @@ import {
     MobileStepper,
 } from "@mui/material";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
-import SwipeableViews from "react-swipeable-views";
+import SwipeableViews from 'react-swipeable-views';
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import { Link } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
