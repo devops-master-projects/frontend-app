@@ -37,6 +37,7 @@
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/react-router-dom": "^5.3.3",
+    "@types/react-swipeable-views": "^0.13.6",
     "@vitejs/plugin-react": "^5.0.0",
     "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.33.0",
@@ -60,5 +61,4 @@
       "react": "^19.0.0"
     }
   }
-
 }
