@@ -46,11 +46,11 @@ export default function NewAccommodationPage() {
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = (field: string, value: any) => {
+    const handleChange = (field: string, value: unknown) => {
         setForm({ ...form, [field]: value });
     };
 
-    const handleLocationChange = (field: string, value: any) => {
+    const handleLocationChange = (field: string, value: unknown) => {
         setForm({
             ...form,
             location: { ...form.location, [field]: value },

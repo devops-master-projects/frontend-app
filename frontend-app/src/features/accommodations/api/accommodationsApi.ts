@@ -1,12 +1,5 @@
 import type {AmenityResponseDto} from "./amenitiesApi.ts";
 
-export type LocationDto = {
-    country: string;
-    city: string;
-    address: string;
-    postalCode: string;
-};
-
 export type AccommodationResponseDto = {
     id: string;
     name: string;

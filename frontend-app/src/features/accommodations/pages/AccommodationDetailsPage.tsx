@@ -1,17 +1,16 @@
-import {ReactElement, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
+import  type {ReactElement} from "react";
 import {
     Container,
     Typography,
-    Grid,
     Paper,
     Box,
     Button,
     Chip,
     Divider,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { useTheme } from "@mui/material/styles";
-import SwipeableViews from "react-swipeable-views";
-
 import { useNavigate, useParams } from "react-router-dom";
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import { fetchAccommodationById } from "../api/accommodationsApi";
@@ -86,7 +85,7 @@ export default function AccommodationDetailsPage() {
                     <Grid item xs={6}>
                         <Typography>Pricing mode: {accommodation.pricingMode}</Typography>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={6} >
                         <Typography>
                             Auto-confirm: {accommodation.autoConfirm ? "Yes" : "No"}
                         </Typography>

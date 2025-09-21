@@ -82,11 +82,11 @@ export default function EditAccommodationPage() {
     }, [id]);
 
 
-    const handleChange = (field: string, value: any) => {
+    const handleChange = (field: string, value: unknown) => {
         setForm({ ...form, [field]: value });
     };
 
-    const handleLocationChange = (field: string, value: any) => {
+    const handleLocationChange = (field: string, value: unknown) => {
         setForm({
             ...form,
             location: { ...form.location, [field]: value },
