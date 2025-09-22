@@ -141,68 +141,51 @@ export default function NewAccommodationPage() {
                     <Box component="form" sx={{ mt: 3 }}>
                         {/* Row 1: Name + Country */}
                         <Grid container spacing={2}>
-                            <Grid item size={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label="Name"
                                     fullWidth
                                     value={form.name}
                                     error={Boolean(errors.name)}
                                     helperText={errors.name}
-                                    onChange={(e) =>
-                                        handleChange("name", e.target.value)
-                                    }
+                                    onChange={(e) => handleChange("name", e.target.value)}
                                 />
                             </Grid>
-                            <Grid item size={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label="Country"
                                     fullWidth
                                     value={form.location.country}
                                     error={Boolean(errors.country)}
                                     helperText={errors.country}
-                                    onChange={(e) =>
-                                        handleLocationChange(
-                                            "country",
-                                            e.target.value
-                                        )
-                                    }
+                                    onChange={(e) => handleLocationChange("country", e.target.value)}
                                 />
                             </Grid>
                         </Grid>
 
                         {/* Row 2: City + Address + Postal Code */}
                         <Grid container spacing={2} sx={{ mt: 2 }}>
-                            <Grid item size={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     label="City"
                                     fullWidth
                                     value={form.location.city}
                                     error={Boolean(errors.city)}
                                     helperText={errors.city}
-                                    onChange={(e) =>
-                                        handleLocationChange(
-                                            "city",
-                                            e.target.value
-                                        )
-                                    }
+                                    onChange={(e) => handleLocationChange("city", e.target.value)}
                                 />
                             </Grid>
-                            <Grid item size={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     label="Address"
                                     fullWidth
                                     value={form.location.address}
                                     error={Boolean(errors.address)}
                                     helperText={errors.address}
-                                    onChange={(e) =>
-                                        handleLocationChange(
-                                            "address",
-                                            e.target.value
-                                        )
-                                    }
+                                    onChange={(e) => handleLocationChange("address", e.target.value)}
                                 />
                             </Grid>
-                            <Grid item size={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     label="Postal Code"
                                     fullWidth
@@ -210,10 +193,7 @@ export default function NewAccommodationPage() {
                                     error={Boolean(errors.postalCode)}
                                     helperText={errors.postalCode}
                                     onChange={(e) =>
-                                        handleLocationChange(
-                                            "postalCode",
-                                            e.target.value
-                                        )
+                                        handleLocationChange("postalCode", e.target.value)
                                     }
                                 />
                             </Grid>
@@ -221,7 +201,7 @@ export default function NewAccommodationPage() {
 
                         {/* Row 3: Min Guests + Max Guests + Pricing */}
                         <Grid container spacing={2} sx={{ mt: 2 }}>
-                            <Grid item size={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     label="Min Guests"
                                     type="number"
@@ -229,15 +209,10 @@ export default function NewAccommodationPage() {
                                     value={form.minGuests}
                                     error={Boolean(errors.minGuests)}
                                     helperText={errors.minGuests}
-                                    onChange={(e) =>
-                                        handleChange(
-                                            "minGuests",
-                                            +e.target.value
-                                        )
-                                    }
+                                    onChange={(e) => handleChange("minGuests", +e.target.value)}
                                 />
                             </Grid>
-                            <Grid item size={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     label="Max Guests"
                                     type="number"
@@ -245,15 +220,10 @@ export default function NewAccommodationPage() {
                                     value={form.maxGuests}
                                     error={Boolean(errors.maxGuests)}
                                     helperText={errors.maxGuests}
-                                    onChange={(e) =>
-                                        handleChange(
-                                            "maxGuests",
-                                            +e.target.value
-                                        )
-                                    }
+                                    onChange={(e) => handleChange("maxGuests", +e.target.value)}
                                 />
                             </Grid>
-                            <Grid item size={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     select
                                     label="Pricing Mode"
@@ -261,33 +231,23 @@ export default function NewAccommodationPage() {
                                     value={form.pricingMode}
                                     error={Boolean(errors.pricingMode)}
                                     helperText={errors.pricingMode}
-                                    onChange={(e) =>
-                                        handleChange(
-                                            "pricingMode",
-                                            e.target.value
-                                        )
-                                    }
+                                    onChange={(e) => handleChange("pricingMode", e.target.value)}
                                 >
                                     <MenuItem value="FIXED">Fixed</MenuItem>
-                                    <MenuItem value="PER_NIGHT">
-                                        Per Night
-                                    </MenuItem>
-                                    <MenuItem value="PER_PERSON">
-                                        Per Person
-                                    </MenuItem>
+                                    <MenuItem value="PER_NIGHT">Per Night</MenuItem>
+                                    <MenuItem value="PER_PERSON">Per Person</MenuItem>
                                 </TextField>
                             </Grid>
                         </Grid>
 
                         {/* Row 4: Description */}
-                        {/* Row 4: Description */}
                         <Grid container spacing={2} sx={{ mt: 2 }}>
-                            <Grid item size={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label="Description"
                                     fullWidth
                                     multiline
-                                    minRows={3} // veće polje
+                                    minRows={3}
                                     value={form.description}
                                     error={Boolean(errors.description)}
                                     helperText={errors.description}
@@ -296,6 +256,7 @@ export default function NewAccommodationPage() {
                             </Grid>
                         </Grid>
 
+                        {/* Amenities */}
                         <FormControl fullWidth sx={{ mt: 3 }}>
                             <InputLabel id="amenities-label">Amenities</InputLabel>
                             <Select
@@ -324,15 +285,10 @@ export default function NewAccommodationPage() {
                             </Select>
                         </FormControl>
 
-
+                        {/* File Upload */}
                         <Grid container spacing={2} sx={{ mt: 2 }}>
                             <Grid size={12}>
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                    }}
-                                >
+                                <Box sx={{ display: "flex", justifyContent: "center" }}>
                                     <Button
                                         variant="outlined"
                                         component="label"
@@ -362,58 +318,56 @@ export default function NewAccommodationPage() {
                                         gap: 2,
                                     }}
                                 >
-                        <>
-                        {localPhotos.map((file, idx) => (
-                            <Box
-                                key={idx}
-                                sx={{
-                                    position: "relative",
-                                    width: 160,
-                                    height: 120,
-                                }}
-                            >
-                                <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`preview-${idx}`}
-                                    width={160}
-                                    height={120}
-                                    style={{
-                                        objectFit: "cover",
-                                        borderRadius: 8,
-                                    }}
-                                />
-                                <Button
-                                    size="small"
-                                    onClick={() =>
-                                        setLocalPhotos((prev) =>
-                                            prev.filter((_, i) => i !== idx)
-                                        )
-                                    }
-                                    sx={{
-                                        position: "absolute",
-                                        top: 4,
-                                        right: 4,
-                                        minWidth: 0,
-                                        width: 24,
-                                        height: 24,
-                                        borderRadius: "50%",
-                                        backgroundColor: "rgba(0,0,0,0.6)",
-                                        color: "#fff",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(0,0,0,0.8)",
-                                        },
-                                    }}
-                                >
-                                    ✕
-                                </Button>
-                            </Box>
-                                ))}
-                        </>
-                            </Box>
+                                    {localPhotos.map((file, idx) => (
+                                        <Box
+                                            key={idx}
+                                            sx={{
+                                                position: "relative",
+                                                width: 160,
+                                                height: 120,
+                                            }}
+                                        >
+                                            <img
+                                                src={URL.createObjectURL(file)}
+                                                alt={`preview-${idx}`}
+                                                width={160}
+                                                height={120}
+                                                style={{
+                                                    objectFit: "cover",
+                                                    borderRadius: 8,
+                                                }}
+                                            />
+                                            <Button
+                                                size="small"
+                                                onClick={() =>
+                                                    setLocalPhotos((prev) =>
+                                                        prev.filter((_, i) => i !== idx)
+                                                    )
+                                                }
+                                                sx={{
+                                                    position: "absolute",
+                                                    top: 4,
+                                                    right: 4,
+                                                    minWidth: 0,
+                                                    width: 24,
+                                                    height: 24,
+                                                    borderRadius: "50%",
+                                                    backgroundColor: "rgba(0,0,0,0.6)",
+                                                    color: "#fff",
+                                                    "&:hover": {
+                                                        backgroundColor: "rgba(0,0,0,0.8)",
+                                                    },
+                                                }}
+                                            >
+                                                ✕
+                                            </Button>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Grid>
                         </Grid>
-                    </Grid>
 
-                        {/* Row 6: Bottom Actions */}
+                        {/* Bottom Actions */}
                         <Box
                             sx={{
                                 mt: 4,
@@ -423,17 +377,12 @@ export default function NewAccommodationPage() {
                                 gap: 2,
                             }}
                         >
-
                             <FormControlLabel
-
                                 control={
                                     <Checkbox
                                         checked={form.autoConfirm}
                                         onChange={(e) =>
-                                            handleChange(
-                                                "autoConfirm",
-                                                e.target.checked
-                                            )
+                                            handleChange("autoConfirm", e.target.checked)
                                         }
                                     />
                                 }
@@ -462,8 +411,8 @@ export default function NewAccommodationPage() {
                 onClose={() => setSuccess(false)}
                 message="Accommodation created successfully!"
             />
-
         </>
+
     );
 
 
