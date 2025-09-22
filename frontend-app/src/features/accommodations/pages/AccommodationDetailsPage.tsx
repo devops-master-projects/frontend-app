@@ -77,20 +77,23 @@ export default function AccommodationDetailsPage() {
 
 
                 <Grid container spacing={2} sx={{ mt: 2 }}>
-                    <Grid item xs={6}>
+                    <Grid size={6}>
                         <Typography>
                             Guests: {accommodation.minGuests} – {accommodation.maxGuests}
                         </Typography>
                     </Grid>
-                    <Grid item xs={6}>
-                        <Typography>Pricing mode: {accommodation.pricingMode}</Typography>
+                    <Grid size={6}>
+                        <Typography>
+                            Pricing mode: {accommodation.pricingMode}
+                        </Typography>
                     </Grid>
-                    <Grid item xs={6} >
+                    <Grid size={6}>
                         <Typography>
                             Auto-confirm: {accommodation.autoConfirm ? "Yes" : "No"}
                         </Typography>
                     </Grid>
                 </Grid>
+
 
                 <Box sx={{ mt: 3 }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 600 }} align={"left"}>

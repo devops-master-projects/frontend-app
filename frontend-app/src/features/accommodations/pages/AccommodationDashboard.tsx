@@ -54,11 +54,12 @@ export default function AccommodationDashboard() {
 
             <Grid container spacing={3}>
                 {paginatedAccommodations.map((a) => (
-                    <Grid item xs={12} sm={6} md={4} key={a.id}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={a.id}>
                         <AccommodationCard accommodation={a} />
                     </Grid> as ReactElement
                 ))}
             </Grid>
+
 
 
             {/* Pagination */}

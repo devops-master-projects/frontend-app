@@ -305,7 +305,7 @@ export default function EditAccommodationPage() {
                         </FormControl>
 
                         <Grid container spacing={2} sx={{ mt: 2 }}>
-                            <Grid item size={12}>
+                            <Grid size={12}>
                                 <Box sx={{ display: "flex", justifyContent: "center" }}>
                                     <Button
                                         variant="outlined"
