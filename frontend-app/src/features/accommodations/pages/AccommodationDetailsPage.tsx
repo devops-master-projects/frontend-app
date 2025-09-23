@@ -121,7 +121,7 @@ export default function AccommodationDetailsPage() {
                         color="primary"
                         onClick={() => navigate(`/accommodations/${accommodation.id}/availability/new`)}
                     >
-                        New Availability
+                        Availabilities
                     </Button>
                     <Button
                         variant="outlined"
