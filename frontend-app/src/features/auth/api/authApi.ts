@@ -21,3 +21,8 @@ export async function registerUser(body: RegisterRequest): Promise<string> {
   }
   return text; 
 }
+
+// TODO! EXTRACT ROLE FROM JWT
+export function getRole(): string {
+  return "GUEST";
+}

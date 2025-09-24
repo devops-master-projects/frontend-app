@@ -11,11 +11,14 @@ import { fetchAccommodations } from "../api/accommodationsApi";
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import AccommodationCard from "./AccommodationCard";
 import HostNavbar from "../navbar/HostNavbar.tsx";
+import GuestNavbar from "../navbar/GuestNavbar.tsx";
+import {getRole} from "../../auth/api/authApi.ts";
 
 export default function AccommodationDashboard() {
     const [accommodations, setAccommodations] = useState<AccommodationResponseDto[]>([]);
     const [page, setPage] = useState(1);
     const itemsPerPage = 6;
+    const role : string = getRole();
 
     useEffect(() => {
         fetchAccommodations()
@@ -32,7 +35,8 @@ export default function AccommodationDashboard() {
 
     return (
         <>
-        <HostNavbar />
+        {role === "HOST" && <HostNavbar />}
+        {role === "GUEST" && <GuestNavbar />}
         <Container sx={{ mt: 4 }}>
             <Typography
                 variant="h4"

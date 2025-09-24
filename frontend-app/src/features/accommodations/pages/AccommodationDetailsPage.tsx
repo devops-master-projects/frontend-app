@@ -16,6 +16,8 @@ import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import { fetchAccommodationById } from "../api/accommodationsApi";
 import HostNavbar from "../navbar/HostNavbar.tsx";
 import PhotoCarousel from "./PhotoCarousel.tsx";
+import GuestNavbar from "../navbar/GuestNavbar.tsx";
+import {getRole} from "../../auth/api/authApi.ts";
 
 export default function AccommodationDetailsPage() {
     const theme = useTheme();
@@ -24,6 +26,7 @@ export default function AccommodationDetailsPage() {
 
     const [accommodation, setAccommodation] = useState<AccommodationResponseDto | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const role : string = getRole();
 
     useEffect(() => {
         if (!id) return;
@@ -53,7 +56,8 @@ export default function AccommodationDetailsPage() {
 
     return (
         <>
-        <HostNavbar/>
+        {role === "HOST" && <HostNavbar />}
+        {role === "GUEST" && <GuestNavbar />}
         <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
             <Paper sx={{ p: 4 }}>
                 <Typography
@@ -109,27 +113,42 @@ export default function AccommodationDetailsPage() {
 
                 {/* Dugmad */}
                 <Box sx={{ mt: 4, display: "flex", gap: 2 }}>
+                    {role === "HOST" &&
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={() => navigate(`/accommodations/${accommodation.id}/edit`)}
                     >
                         EDIT
-                    </Button>
+                    </Button> as ReactElement
+                    }
+                    { role === "HOST" &&
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={() => navigate(`/accommodations/${accommodation.id}/availability/new`)}
                     >
                         Availabilities
-                    </Button>
+                    </Button> as ReactElement
+                    }
+                    { role === "GUEST" &&
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => navigate(`/accommodations/${accommodation.id}/reservations/new`)}
+                        >
+                            Book now
+                        </Button> as ReactElement
+                    }
+                    { role === "HOST" &&
                     <Button
                         variant="outlined"
                         color="secondary"
                         onClick={() => navigate(`/accommodations/${accommodation.id}/reservations`)}
                     >
                         Reservations
-                    </Button>
+                    </Button> as ReactElement
+                    }
                 </Box>
 
                 {accommodation.urlPhotos?.length > 0 && (

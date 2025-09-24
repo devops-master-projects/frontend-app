@@ -1,4 +1,5 @@
-import { useState } from "react";
+import {useState} from "react";
+import type {ReactElement} from "react";
 import {
     Card,
     CardContent,
@@ -12,11 +13,13 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import SwipeableViews from 'react-swipeable-views';
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import { Link } from "react-router-dom";
+import {getRole} from "../../auth/api/authApi.ts";
 type Props = { accommodation: AccommodationResponseDto };
 
 export default function AccommodationCard({ accommodation }: Props) {
     const [activeStep, setActiveStep] = useState(0);
     const maxSteps = accommodation.urlPhotos?.length ?? 0;
+    const role : string = getRole();
 
     return (
         <Card sx={{ maxWidth: 350, minHeight: 500, maxHeight: 500}}>
@@ -33,8 +36,7 @@ export default function AccommodationCard({ accommodation }: Props) {
                                 component="img"
                                 sx={{ height: 250 }}
                                 image={photoUrl}
-                                title={`${accommodation.name} - slika ${idx + 1}`}
-                            />
+                                title={`${accommodation.name} - slika ${idx + 1}`}></CardMedia> as ReactElement
                         ))}
                     </SwipeableViews>
 
@@ -49,7 +51,7 @@ export default function AccommodationCard({ accommodation }: Props) {
                                 disabled={activeStep === maxSteps - 1 || maxSteps === 1}
                             >
                                 Next <KeyboardArrowRight />
-                            </Button>
+                            </Button> as ReactElement
                         }
                         backButton={
                             <Button
@@ -58,10 +60,10 @@ export default function AccommodationCard({ accommodation }: Props) {
                                 disabled={activeStep === 0 || maxSteps === 1}
                             >
                                 <KeyboardArrowLeft /> Back
-                            </Button>
+                            </Button> as ReactElement
                         }
                     />
-                </>
+                </> as ReactElement
             )}
 
 
@@ -97,14 +99,15 @@ export default function AccommodationCard({ accommodation }: Props) {
                 >
                     DETAILS
                 </Button>
+                { role === "HOST" &&
                 <Button
                     size="small"
                     component={Link}
                     to={`/accommodations/${accommodation.id}/edit`}
                 >
                     EDIT
-                </Button>
-
+                </Button> as ReactElement
+                }
 
             </CardActions>
         </Card>
