@@ -20,6 +20,94 @@ export type AvailabilityResponseDto = {
 
 const BASE_URL = import.meta.env.VITE_BOOKING_API_URL;
 
+export type ReservationRequestCreateDto = {
+    accommodationId: string;
+    startDate: string; // "YYYY-MM-DD"
+    endDate: string;   // "YYYY-MM-DD"
+    guestCount: number;
+};
+
+export type ReservationRequestResponseDto = {
+    id: string;
+    guestId: string;
+    accommodationId: string;
+    startDate: string;
+    endDate: string;
+    guestCount: number;
+    status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+};
+
+
+/**
+ * CREATE reservation request
+ * TODO! ID korisnika treba da ide iz tokena
+ */
+export async function createReservationRequest(
+    dto: ReservationRequestCreateDto
+): Promise<ReservationRequestResponseDto> {
+    const res = await fetch(`${BASE_URL}/api/reservation-requests`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Guest-Id": "22b2383b-2f46-4116-8015-462c32531af1",
+        },
+        body: JSON.stringify(dto),
+    });
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+/**
+ * GET reservation requests by guest
+ * TODO! uzece iz tokena
+ */
+export async function getReservationRequestsByGuest(
+    guestId: string
+): Promise<ReservationRequestResponseDto[]> {
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/guest/${guestId}`);
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+/**
+ * GET reservation requests by accommodation
+ */
+export async function getReservationRequestsByAccommodation(
+    accommodationId: string
+): Promise<ReservationRequestResponseDto[]> {
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/accommodation/${accommodationId}`);
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+/**
+ * UPDATE reservation request status
+ */
+export async function updateReservationRequestStatus(
+    id: string,
+    status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED"
+): Promise<ReservationRequestResponseDto> {
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/${id}/status?status=${status}`, {
+        method: "PATCH",
+    });
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+
+
 /**
  * GET availability for accommodation
  */
@@ -85,4 +173,43 @@ export async function deleteAvailability(id: string): Promise<void> {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
     }
+}
+
+export async function deleteReservationRequest(id: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+}
+
+export type ReservationRequestUpdateDto = {
+    startDate: string;
+    endDate: string;
+    guestCount: number;
+};
+
+export async function updateReservationRequest(
+    id: string,
+    dto: ReservationRequestUpdateDto
+): Promise<ReservationRequestResponseDto> {
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dto),
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json();
 }

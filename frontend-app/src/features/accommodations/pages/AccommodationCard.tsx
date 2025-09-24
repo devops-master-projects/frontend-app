@@ -36,7 +36,7 @@ export default function AccommodationCard({ accommodation }: Props) {
                                 component="img"
                                 sx={{ height: 250 }}
                                 image={photoUrl}
-                                title={`${accommodation.name} - slika ${idx + 1}`}></CardMedia> as ReactElement
+                                title={`${accommodation.name} - ${idx + 1}`}></CardMedia> as ReactElement
                         ))}
                     </SwipeableViews>
 
