@@ -8,6 +8,7 @@ import EditAccommodationPage from "../features/accommodations/pages/EditAccommod
 import AccommodationDetailsPage from "../features/accommodations/pages/AccommodationDetailsPage.tsx";
 import AvailabilityCalendarPage from "../features/booking/pages/AvailabilityCalendarPage.tsx";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,7 +42,6 @@ const router = createBrowserRouter([
     path: "/accommodations/:id/availability/new",
     element: <AvailabilityCalendarPage />,
   },
-
 ]);
 
 export function AppRouter() {
