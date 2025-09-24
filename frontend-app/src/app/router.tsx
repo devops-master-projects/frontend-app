@@ -7,12 +7,17 @@ import NewAmenityPage from "../features/accommodations/pages/NewAmenityPage.tsx"
 import EditAccommodationPage from "../features/accommodations/pages/EditAccommodationPage.tsx";
 import AccommodationDetailsPage from "../features/accommodations/pages/AccommodationDetailsPage.tsx";
 import AvailabilityCalendarPage from "../features/booking/pages/AvailabilityCalendarPage.tsx";
+import Login from "../features/auth/pages/Login.tsx";
 
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+  },
+  {
+    path: "/auth/login",
+    element: <Login />,
   },
   {
     path: "/auth/register",
