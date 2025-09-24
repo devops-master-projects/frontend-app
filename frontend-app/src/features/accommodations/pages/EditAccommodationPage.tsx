@@ -21,7 +21,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
 
-import Navbar from "./Navbar.tsx";
+import HostNavbar from "../navbar/HostNavbar.tsx";
 import type { AccommodationRequestDto, AccommodationResponseDto } from "../api/accommodationsApi";
 import {
     fetchAccommodationById,
@@ -144,7 +144,7 @@ export default function EditAccommodationPage() {
 
     return (
         <>
-            <Navbar />
+            <HostNavbar />
             <Container maxWidth="md" disableGutters sx={{ mt: 4, mb: 6 }}>
                 <Paper sx={{ p: 4 }}>
                     <Typography

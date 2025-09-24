@@ -17,7 +17,7 @@ import {
     DialogActions,
     Button,
 } from "@mui/material";
-import Navbar from "../../accommodations/pages/Navbar.tsx";
+import HostNavbar from "../../accommodations/navbar/HostNavbar.tsx";
 import {
     createAvailability, deleteAvailability,
     getAvailability,
@@ -270,7 +270,7 @@ export default function AvailabilityCalendarPage() {
 
     return (
         <>
-            <Navbar />
+            <HostNavbar />
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
                 <Paper sx={{ p: 3, width: "100%", maxWidth: "1200px" }}>
                     {/* Modal za edit */}

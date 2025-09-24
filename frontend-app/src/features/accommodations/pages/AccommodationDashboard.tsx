@@ -10,7 +10,7 @@ import {
 import { fetchAccommodations } from "../api/accommodationsApi";
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import AccommodationCard from "./AccommodationCard";
-import Navbar from "./Navbar.tsx";
+import HostNavbar from "../navbar/HostNavbar.tsx";
 
 export default function AccommodationDashboard() {
     const [accommodations, setAccommodations] = useState<AccommodationResponseDto[]>([]);
@@ -32,7 +32,7 @@ export default function AccommodationDashboard() {
 
     return (
         <>
-        <Navbar />
+        <HostNavbar />
         <Container sx={{ mt: 4 }}>
             <Typography
                 variant="h4"
@@ -49,7 +49,7 @@ export default function AccommodationDashboard() {
                     paddingBottom: "4px"
                 }}
             >
-                My Accommodations
+                Accommodations
             </Typography>
 
             <Grid container spacing={3}>

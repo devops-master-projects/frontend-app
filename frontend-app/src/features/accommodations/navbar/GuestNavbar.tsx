@@ -2,7 +2,7 @@ import { AppBar, Toolbar, Typography, Button, Box, IconButton } from "@mui/mater
 import { Link as RouterLink } from "react-router-dom";
 import { Home } from "@mui/icons-material";
 
-export default function Navbar() {
+export default function GuestNavbar() {
     return (
         <AppBar
             position="static"
@@ -23,24 +23,6 @@ export default function Navbar() {
                     >
                         <Home />
                     </IconButton>
-
-                    <Button
-                        component={RouterLink}
-                        to="/accommodations/new"
-                        color="inherit"
-                        sx={{ fontWeight: 600 }}
-                    >
-                        New Accommodation
-                    </Button>
-
-                    <Button
-                        component={RouterLink}
-                        to="/accommodations/amenity/new"
-                        color="inherit"
-                        sx={{ fontWeight: 600 }}
-                    >
-                        New Amenity
-                    </Button>
                 </Box>
                 <Typography
                     variant="h6"

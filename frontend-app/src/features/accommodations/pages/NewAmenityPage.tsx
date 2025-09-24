@@ -10,7 +10,7 @@ import {
     CircularProgress,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import Navbar from "./Navbar.tsx";
+import HostNavbar from "../navbar/HostNavbar.tsx";
 import { createAmenity } from "../api/amenitiesApi.ts";
 import { useNavigate } from "react-router-dom";
 
@@ -66,7 +66,7 @@ export default function NewAmenityPage() {
 
     return (
         <>
-            <Navbar />
+            <HostNavbar />
             <Container maxWidth="sm" disableGutters sx={{ mt: 4, mb: 6 }}>
                 <Paper sx={{ p: 4, position: "relative" }}>
                     <Typography

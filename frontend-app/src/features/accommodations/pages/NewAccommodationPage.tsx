@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { AccommodationRequestDto } from "../api/accommodationsApi";
-import Navbar from "./Navbar.tsx";
+import HostNavbar from "../navbar/HostNavbar.tsx";
 import Grid from "@mui/material/Grid";
 import {createAccommodation, uploadPhotoToCloudinary} from "../api/accommodationsApi";
 import {useNavigate} from "react-router-dom";
@@ -118,7 +118,7 @@ export default function NewAccommodationPage() {
 
     return (
         <>
-            <Navbar />
+            <HostNavbar />
             <Container maxWidth="md" disableGutters sx={{ mt: 4, mb: 6 }}>
                 <Paper sx={{ p: 4 }}>
                     <Typography

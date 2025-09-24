@@ -14,7 +14,7 @@ import { useTheme } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
 import type { AccommodationResponseDto } from "../api/accommodationsApi";
 import { fetchAccommodationById } from "../api/accommodationsApi";
-import Navbar from "./Navbar.tsx";
+import HostNavbar from "../navbar/HostNavbar.tsx";
 import PhotoCarousel from "./PhotoCarousel.tsx";
 
 export default function AccommodationDetailsPage() {
@@ -53,7 +53,7 @@ export default function AccommodationDetailsPage() {
 
     return (
         <>
-        <Navbar/>
+        <HostNavbar/>
         <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
             <Paper sx={{ p: 4 }}>
                 <Typography
