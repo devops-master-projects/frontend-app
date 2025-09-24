@@ -42,8 +42,6 @@ const router = createBrowserRouter([
     path: "/accommodations/:id/availability/new",
     element: <AvailabilityCalendarPage />,
   },
-
-
 ]);
 
 export function AppRouter() {
