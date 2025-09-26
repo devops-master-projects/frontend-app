@@ -142,11 +142,11 @@ export default function AccommodationDetailsPage() {
                     }
                     { role === "HOST" &&
                     <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => navigate(`/accommodations/${accommodation.id}/reservations`)}
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate(`/accommodations/${accommodation.id}/requests`)}
                     >
-                        Reservations
+                        Requests
                     </Button> as ReactElement
                     }
                 </Box>

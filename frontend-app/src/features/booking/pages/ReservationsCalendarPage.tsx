@@ -51,7 +51,6 @@ export default function ReservationsCalendarPage() {
     const [range, setRange] = useState<{ start: Date; end: Date } | null>(null);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [newGuestCount, setNewGuestCount] = useState<number>(1);
-    const [editGuestCount, setEditGuestCount] = useState<number>(1);
     const [editTarget, setEditTarget] = useState<MyEvent | null>(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [accommodation, setAccommodation] = useState<AccommodationResponseDto | null>(null);
@@ -72,6 +71,7 @@ export default function ReservationsCalendarPage() {
         const date = new Date(d);
         return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
     };
+    const [cancelTarget, setCancelTarget] = useState<MyEvent | null>(null);
 
 
     useEffect(() => {
@@ -79,7 +79,7 @@ export default function ReservationsCalendarPage() {
 
         Promise.all([
             getAvailability(id),
-            getReservationRequestsByGuest("22b2383b-2f46-4116-8015-462c32531af1"),
+            getReservationRequestsByGuest("22b2383b-2f46-4116-8015-462c32531af1", id),
             fetchAccommodationById(id)
 
         ]).then(([availability, requests, accommodation]) => {
@@ -102,22 +102,29 @@ export default function ReservationsCalendarPage() {
                 price: a.price,
             }));
 
-            const mappedReq: MyEvent[] = requests.map(r  => ({
-                id: r.id,
-                title: `Reservation request`,
-                start: new Date(r.startDate),
-                end: new Date(
-                    new Date(r.endDate).getFullYear(),
-                    new Date(r.endDate).getMonth(),
-                    new Date(r.endDate).getDate(),
-                    23, 59, 59, 999
-                ),
-                allDay: true,
-                resource: { status: r.status }, // PENDING/APPROVED/...
-                priceType: "NORMAL",
-                guestCount: r.guestCount
-            }));
-
+            const mappedReq: MyEvent[] = requests
+                .filter((r) => r.status !== "REJECTED")
+                .map((r) => {
+                    let title = "Reservation request";
+                    if (r.status === "APPROVED") {
+                        title = "Your reservation!";
+                    }
+                    return {
+                        id: r.id,
+                        title,
+                        start: new Date(r.startDate),
+                        end: new Date(
+                            new Date(r.endDate).getFullYear(),
+                            new Date(r.endDate).getMonth(),
+                            new Date(r.endDate).getDate(),
+                            23, 59, 59, 999
+                        ),
+                        allDay: true,
+                        resource: { status: r.status }, // PENDING/APPROVED/...
+                        priceType: "NORMAL",
+                        guestCount: r.guestCount,
+                    };
+                });
             setEvents([...mappedAvail, ...mappedReq]);
         });
     }, [id]);
@@ -199,24 +206,30 @@ export default function ReservationsCalendarPage() {
     };
 
     const handleSelectEvent = (event: MyEvent) => {
-        if (event.resource.status !== "PENDING") {
-            return;
+        if (event.resource.status === "PENDING") {
+            setEditTarget({
+                ...event,
+                guestCount: event.guestCount ?? (accommodation ? accommodation.minGuests : 1),
+            });
+        } else if (event.resource.status === "APPROVED") {
+            setCancelTarget(event);
         }
-        console.log(event);
-
-        setEditTarget({
-            ...event,
-            guestCount: event.guestCount ?? (accommodation ? accommodation.minGuests : 1),
-        });
     };
+
 
     const handleUpdateReservation = async () => {
         if (!editTarget) return;
         if (!accommodation) return;
 
-        if (editTarget.guestCount < accommodation.minGuests || editTarget.guestCount > accommodation.maxGuests) {
+        if (!editTarget || editTarget.guestCount == null || !accommodation) return;
+
+        if (
+            editTarget.guestCount < accommodation.minGuests ||
+            editTarget.guestCount > accommodation.maxGuests
+        ) {
             return;
         }
+
 
         const days: Date[] = [];
         for (let d = new Date(editTarget.start); d <= editTarget.end; d.setDate(d.getDate() + 1)) {
@@ -232,7 +245,6 @@ export default function ReservationsCalendarPage() {
 
         if (!allAvailable)
             return
-
         try {
             const dto = {
                 startDate: formatDate(editTarget.start),
@@ -363,7 +375,7 @@ export default function ReservationsCalendarPage() {
                                     case "REJECTED":
                                         return {
                                             style: {
-                                                backgroundColor: "#9e9e9e",
+                                                backgroundColor: "#f44336",
                                                 color: "white",
                                                 borderRadius: "6px",
                                                 padding: "2px 6px",
@@ -372,7 +384,7 @@ export default function ReservationsCalendarPage() {
                                     case "CANCELLED":
                                         return {
                                             style: {
-                                                backgroundColor: "#f44336",
+                                                backgroundColor: "#9e9e9e",
                                                 color: "white",
                                                 borderRadius: "6px",
                                                 padding: "2px 6px",
@@ -491,10 +503,6 @@ export default function ReservationsCalendarPage() {
                                     sx={{ mt: 2 }}
                                 /> as ReactElement
                             )}
-
-
-
-
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setEditTarget(null)}>Cancel</Button>
@@ -529,8 +537,41 @@ export default function ReservationsCalendarPage() {
                             >
                                 Delete
                             </Button>
-
-
+                        </DialogActions>
+                    </Dialog>
+                    <Dialog open={!!cancelTarget} onClose={() => setCancelTarget(null)}>
+                        <DialogTitle>Cancel Reservation</DialogTitle>
+                        <DialogContent>
+                            <Typography>
+                                {cancelTarget &&
+                                    `Do you really want to cancel your reservation from ${cancelTarget.start.toDateString()} to ${cancelTarget.end.toDateString()}?`}
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setCancelTarget(null)}>No</Button>
+                            <Button
+                                color="error"
+                                variant="contained"
+                                onClick={async () => {
+                                    if (cancelTarget) {
+                                        try {
+                                            // await updateReservationRequestStatus(cancelTarget.id, "CANCELLED");
+                                            // setEvents((prev) =>
+                                            //     prev.map((ev) =>
+                                            //         ev.id === cancelTarget.id
+                                            //             ? { ...ev, resource: { status: "CANCELLED" }, title: "Reservation cancelled" }
+                                            //             : ev
+                                            //     )
+                                            // );
+                                            setCancelTarget(null);
+                                        } catch (err) {
+                                            console.error("Failed to cancel:", err);
+                                        }
+                                    }
+                                }}
+                            >
+                                Yes, Cancel
+                            </Button>
                         </DialogActions>
                     </Dialog>
 

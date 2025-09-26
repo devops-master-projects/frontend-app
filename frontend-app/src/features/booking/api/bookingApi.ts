@@ -35,6 +35,10 @@ export type ReservationRequestResponseDto = {
     endDate: string;
     guestCount: number;
     status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+    guestEmail?: string;
+    guestFirstName?: string;
+    guestLastName?: string;
+    createdAt: string;
 };
 
 
@@ -46,6 +50,7 @@ export async function createReservationRequest(
     dto: ReservationRequestCreateDto
 ): Promise<ReservationRequestResponseDto> {
     const res = await fetch(`${BASE_URL}/api/reservation-requests`, {
+        // TODO!
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -65,9 +70,10 @@ export async function createReservationRequest(
  * TODO! uzece iz tokena
  */
 export async function getReservationRequestsByGuest(
-    guestId: string
+    guestId: string,
+    accommodationId: string
 ): Promise<ReservationRequestResponseDto[]> {
-    const res = await fetch(`${BASE_URL}/api/reservation-requests/guest/${guestId}`);
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/guest/${guestId}/${accommodationId}`);
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
@@ -213,3 +219,4 @@ export async function updateReservationRequest(
     }
     return res.json();
 }
+

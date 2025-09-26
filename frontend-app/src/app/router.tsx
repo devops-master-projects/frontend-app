@@ -8,6 +8,7 @@ import EditAccommodationPage from "../features/accommodations/pages/EditAccommod
 import AccommodationDetailsPage from "../features/accommodations/pages/AccommodationDetailsPage.tsx";
 import AvailabilityCalendarPage from "../features/booking/pages/AvailabilityCalendarPage.tsx";
 import ReservationsCalendarPage from "../features/booking/pages/ReservationsCalendarPage.tsx";
+import HostAccommodationRequestsPage from "../features/booking/pages/HostAccommodationRequestsPage.tsx";
 
 
 const router = createBrowserRouter([
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/accommodations/:id/reservations/new",
     element: <ReservationsCalendarPage />,
+  },
+  {
+    path: "/accommodations/:id/requests",
+    element: <HostAccommodationRequestsPage />,
   },
 ]);
 
