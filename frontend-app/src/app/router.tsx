@@ -9,12 +9,17 @@ import AccommodationDetailsPage from "../features/accommodations/pages/Accommoda
 import AvailabilityCalendarPage from "../features/booking/pages/AvailabilityCalendarPage.tsx";
 import ReservationsCalendarPage from "../features/booking/pages/ReservationsCalendarPage.tsx";
 import HostAccommodationRequestsPage from "../features/booking/pages/HostAccommodationRequestsPage.tsx";
+import Login from "../features/auth/pages/Login.tsx";
 
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+  },
+  {
+    path: "/auth/login",
+    element: <Login />,
   },
   {
     path: "/auth/register",
@@ -52,6 +57,7 @@ const router = createBrowserRouter([
     path: "/accommodations/:id/requests",
     element: <HostAccommodationRequestsPage />,
   },
+
 ]);
 
 export function AppRouter() {

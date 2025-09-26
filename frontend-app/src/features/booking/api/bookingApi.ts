@@ -20,6 +20,7 @@ export type AvailabilityResponseDto = {
 
 const BASE_URL = import.meta.env.VITE_BOOKING_API_URL;
 
+
 export type ReservationRequestCreateDto = {
     accommodationId: string;
     startDate: string; // "YYYY-MM-DD"
@@ -111,6 +112,7 @@ export async function updateReservationRequestStatus(
     }
     return res.json();
 }
+
 
 
 
@@ -219,4 +221,5 @@ export async function updateReservationRequest(
     }
     return res.json();
 }
+
 

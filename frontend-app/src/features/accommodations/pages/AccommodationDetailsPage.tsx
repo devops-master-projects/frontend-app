@@ -56,8 +56,8 @@ export default function AccommodationDetailsPage() {
 
     return (
         <>
-        {role === "HOST" && <HostNavbar />}
-        {role === "GUEST" && <GuestNavbar />}
+        {role === "HOST" && <HostNavbar /> as ReactElement}
+        {role === "GUEST" && <GuestNavbar /> as ReactElement}
         <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
             <Paper sx={{ p: 4 }}>
                 <Typography

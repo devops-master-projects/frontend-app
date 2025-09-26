@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
+import { BrowserRouter } from 'react-router-dom'
 
 vi.mock('../../features/auth/api/authApi', () => ({
   registerUser: vi.fn(),
@@ -13,8 +14,12 @@ import { registerUser } from '../../features/auth/api/authApi'
 
 const mockedRegisterUser = registerUser as MockedFunction<typeof registerUser>
 
-function renderWithTheme(ui: React.ReactElement) {
-  return render(<ThemeProvider theme={createTheme()}>{ui}</ThemeProvider>)
+function renderWithProviders(ui: React.ReactElement) {
+  return render(
+    <BrowserRouter>
+      <ThemeProvider theme={createTheme()}>{ui}</ThemeProvider>
+    </BrowserRouter>
+  )
 }
 
 async function fillRequiredFields(
@@ -39,14 +44,14 @@ describe('Register', () => {
   })
 
   it('starts with submit disabled and no alerts', () => {
-    renderWithTheme(<Register />)
+    renderWithProviders(<Register />)
     const submit = screen.getByRole('button', { name: /create account/i })
     expect(submit).toBeDisabled()
     expect(screen.queryByRole('alert')).toBeNull()
   })
 
   it('enables submit when all required fields are filled', async () => {
-    renderWithTheme(<Register />)
+    renderWithProviders(<Register />)
     const u = userEvent.setup()
     await fillRequiredFields(u)
     const submit = screen.getByRole('button', { name: /create account/i })
@@ -55,7 +60,7 @@ describe('Register', () => {
 
   it('sends trimmed payload and address is undefined when empty', async () => {
     mockedRegisterUser.mockResolvedValue('All good!')
-    renderWithTheme(<Register />)
+    renderWithProviders(<Register />)
     const u = userEvent.setup()
     await fillRequiredFields(u, { role: 'host' })
 
@@ -75,7 +80,7 @@ describe('Register', () => {
 
   it('shows success alert and clears fields after successful registration', async () => {
     mockedRegisterUser.mockResolvedValue('User registered successfully!')
-    renderWithTheme(<Register />)
+    renderWithProviders(<Register />)
     const u = userEvent.setup()
     await fillRequiredFields(u)
     await u.type(screen.getByLabelText(/address/i), 'Novi Sad, Serbia')
@@ -95,7 +100,7 @@ describe('Register', () => {
 
   it('shows error alert on failure and can be dismissed', async () => {
     mockedRegisterUser.mockRejectedValue(new Error('Registration failed (409)'))
-    renderWithTheme(<Register />)
+    renderWithProviders(<Register />)
     const u = userEvent.setup()
     await fillRequiredFields(u)
 
@@ -114,7 +119,7 @@ describe('Register', () => {
     const deferred = new Promise((res) => (resolve = res))
     mockedRegisterUser.mockImplementation(() => deferred as Promise<string>)
 
-    renderWithTheme(<Register />)
+    renderWithProviders(<Register />)
     const u = userEvent.setup()
     await fillRequiredFields(u)
 
@@ -129,12 +134,15 @@ describe('Register', () => {
     fireEvent.click(loadingBtn)
     expect(mockedRegisterUser).toHaveBeenCalledTimes(1)
 
-    resolve('ok')
+    // Resolve the promise in act to avoid warnings
+    await act(async () => {
+      resolve('ok')
+    })
   })
 
   it('includes address in payload when provided (trimmed)', async () => {
     mockedRegisterUser.mockResolvedValue('ok')
-    renderWithTheme(<Register />)
+    renderWithProviders(<Register />)
     const u = userEvent.setup()
     await fillRequiredFields(u)
 
