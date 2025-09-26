@@ -33,6 +33,16 @@ export default function HostAccommodationRequestsPage() {
             .catch((err) => console.error("Failed to load requests:", err));
     }, [id]);
 
+    async function refreshRequests() {
+        if (!id) return;
+        try {
+            const data = await getReservationRequestsByAccommodation(id);
+            setRequests(data);
+        } catch (err) {
+            console.error("Failed to load requests:", err);
+        }
+    }
+
     const getStatusChip = (status: ReservationRequestResponseDto["status"]) => {
         switch (status) {
             case "APPROVED":
@@ -77,6 +87,7 @@ export default function HostAccommodationRequestsPage() {
                                 <TableCell><b>Email</b></TableCell>
                                 <TableCell><b>Guest Count</b></TableCell>
                                 <TableCell><b>Period</b></TableCell>
+                                <TableCell><b>Cancellations count</b></TableCell>
                                 <TableCell><b>Status</b></TableCell>
                             </TableRow>
                         </TableHead>
@@ -91,6 +102,7 @@ export default function HostAccommodationRequestsPage() {
                                         {new Date(r.startDate).toLocaleDateString()} –{" "}
                                         {new Date(r.endDate).toLocaleDateString()}
                                     </TableCell>
+                                    <TableCell>{r.cancellationsCount}</TableCell>
                                     <TableCell>
                                         {getStatusChip(r.status)}
                                     </TableCell>
@@ -102,10 +114,8 @@ export default function HostAccommodationRequestsPage() {
                                                     color="success"
                                                     onClick={async () => {
                                                         try {
-                                                            const updated = await updateReservationRequestStatus(r.id, "APPROVED");
-                                                            setRequests((prev) =>
-                                                                prev.map((req) => (req.id === updated.id ? updated : req))
-                                                            );
+                                                            await updateReservationRequestStatus(r.id, "APPROVED");
+                                                            await refreshRequests();
                                                         } catch (err) {
                                                             console.error("Failed to approve:", err);
                                                         }
@@ -117,10 +127,8 @@ export default function HostAccommodationRequestsPage() {
                                                     color="error"
                                                     onClick={async () => {
                                                         try {
-                                                            const updated = await updateReservationRequestStatus(r.id, "REJECTED");
-                                                            setRequests((prev) =>
-                                                                prev.map((req) => (req.id === updated.id ? updated : req))
-                                                            );
+                                                            await updateReservationRequestStatus(r.id, "REJECTED");
+                                                            await refreshRequests()
                                                         } catch (err) {
                                                             console.error("Failed to reject:", err);
                                                         }

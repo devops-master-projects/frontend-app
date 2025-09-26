@@ -40,9 +40,13 @@ export type ReservationRequestResponseDto = {
     guestFirstName?: string;
     guestLastName?: string;
     createdAt: string;
+    connectedReservationCancelled?: string;
+    cancellationsCount? : number;
+
 };
 
-
+export const guestId = "22b2383b-2f46-4116-8015-462c32531af1";
+// export const guestId="7f3c2e7a-0d43-4b1d-91a4-0d5a0c99f6a9" // otkazao 1
 /**
  * CREATE reservation request
  * TODO! ID korisnika treba da ide iz tokena
@@ -55,7 +59,7 @@ export async function createReservationRequest(
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Guest-Id": "22b2383b-2f46-4116-8015-462c32531af1",
+            "X-Guest-Id": guestId,
         },
         body: JSON.stringify(dto),
     });
@@ -118,11 +122,24 @@ export async function updateReservationRequestStatus(
 
 /**
  * GET availability for accommodation
+ * TODO: iz uloge mogu ove dve metode da se ekstrahuju
  */
 export async function getAvailability(
     accommodationId: string
 ): Promise<AvailabilityResponseDto[]> {
     const res = await fetch(`${BASE_URL}/api/availability/${accommodationId}/calendar`);
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+
+export async function getAvailabilityHost(
+    accommodationId: string
+): Promise<AvailabilityResponseDto[]> {
+    const res = await fetch(`${BASE_URL}/api/availability/${accommodationId}/calendarHost`);
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
@@ -221,5 +238,20 @@ export async function updateReservationRequest(
     }
     return res.json();
 }
+
+export async function cancelReservation(requestId: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/${requestId}/cancel`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+}
+
 
 

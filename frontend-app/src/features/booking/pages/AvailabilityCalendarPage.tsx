@@ -20,7 +20,7 @@ import {
 import HostNavbar from "../../accommodations/navbar/HostNavbar.tsx";
 import {
     createAvailability, deleteAvailability,
-    getAvailability,
+    getAvailabilityHost,
     updateAvailability
 } from "../api/bookingApi.ts";
 import { useParams } from "react-router-dom";
@@ -74,10 +74,9 @@ export default function AvailabilityCalendarPage() {
 
     useEffect(() => {
         if (!id) return;
-        getAvailability(id).then((data) => {
+        getAvailabilityHost(id).then((data) => {
             const mapped: MyEvent[] = data.map((a) => {
                 let title: string;
-
                 if (a.status === "RESERVED") {
                     title = "Reserved";
                 } else if (a.priceType !== "NORMAL") {
@@ -101,6 +100,8 @@ export default function AvailabilityCalendarPage() {
                     priceType: a.priceType,
                 };
             });
+
+
 
             mapped.sort((a, b) => a.start.getTime() - b.start.getTime());
             setEvents(mapped);

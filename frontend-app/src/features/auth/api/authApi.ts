@@ -38,7 +38,7 @@ export async function registerUser(body: RegisterRequest): Promise<string> {
 
 
 export function getRole(): string {
-  return "GUEST";
+  return "HOST";
 }
 export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {

@@ -20,10 +20,11 @@ import {
 } from "@mui/material";
 import GuestNavbar from "../../accommodations/navbar/GuestNavbar.tsx";
 import {
+    cancelReservation,
     createReservationRequest,
     deleteReservationRequest,
     getAvailability,
-    getReservationRequestsByGuest, updateReservationRequest
+    getReservationRequestsByGuest, guestId, updateReservationRequest
 } from "../api/bookingApi.ts";
 import { useParams } from "react-router-dom";
 import type {AccommodationResponseDto} from "../../accommodations/api/accommodationsApi.ts";
@@ -76,58 +77,65 @@ export default function ReservationsCalendarPage() {
 
     useEffect(() => {
         if (!id) return;
-
-        Promise.all([
-            getAvailability(id),
-            getReservationRequestsByGuest("22b2383b-2f46-4116-8015-462c32531af1", id),
-            fetchAccommodationById(id)
-
-        ]).then(([availability, requests, accommodation]) => {
-            setAccommodation(accommodation);
-            const mappedAvail: MyEvent[] = availability.map(a => ({
-                id: a.id,
-                title: a.priceType !== "NORMAL"
-                    ? `⭐ ${a.priceType} (€${a.price})`
-                    : `Available (€${a.price})`,
-                start: toInclusiveStart(a.startDate),
-                end: new Date(
-                    new Date(a.endDate).getFullYear(),
-                    new Date(a.endDate).getMonth(),
-                    new Date(a.endDate).getDate(),
-                    23, 59, 59, 999
-                ),
-                allDay: true,
-                resource: { status: a.status },
-                priceType: a.priceType,
-                price: a.price,
-            }));
-
-            const mappedReq: MyEvent[] = requests
-                .filter((r) => r.status !== "REJECTED")
-                .map((r) => {
-                    let title = "Reservation request";
-                    if (r.status === "APPROVED") {
-                        title = "Your reservation!";
-                    }
-                    return {
-                        id: r.id,
-                        title,
-                        start: new Date(r.startDate),
-                        end: new Date(
-                            new Date(r.endDate).getFullYear(),
-                            new Date(r.endDate).getMonth(),
-                            new Date(r.endDate).getDate(),
-                            23, 59, 59, 999
-                        ),
-                        allDay: true,
-                        resource: { status: r.status }, // PENDING/APPROVED/...
-                        priceType: "NORMAL",
-                        guestCount: r.guestCount,
-                    };
-                });
-            setEvents([...mappedAvail, ...mappedReq]);
-        });
+        refreshCalendar(id, guestId);
     }, [id]);
+
+    async function refreshCalendar(accommodationId: string, guestId: string) {
+        const [availability, requests, accommodation] = await Promise.all([
+            getAvailability(accommodationId),
+            getReservationRequestsByGuest(guestId, accommodationId),
+            fetchAccommodationById(accommodationId),
+        ]);
+
+        setAccommodation(accommodation);
+
+        const mappedAvail: MyEvent[] = availability.map(a => ({
+            id: a.id,
+            title: a.priceType !== "NORMAL"
+                ? `⭐ ${a.priceType} (€${a.price})`
+                : `Available (€${a.price})`,
+            start: toInclusiveStart(a.startDate),
+            end: new Date(
+                new Date(a.endDate).getFullYear(),
+                new Date(a.endDate).getMonth(),
+                new Date(a.endDate).getDate(),
+                23, 59, 59, 999
+            ),
+            allDay: true,
+            resource: { status: a.status },
+            priceType: a.priceType,
+            price: a.price,
+        }));
+
+        const mappedReq: MyEvent[] = requests
+            .filter(
+                (r) => r.status !== "REJECTED" && !r.connectedReservationCancelled
+            )
+            .map((r) => {
+                let title = "Reservation request";
+                if (r.status === "APPROVED") {
+                    title = "Your reservation!";
+                }
+                return {
+                    id: r.id,
+                    title,
+                    start: new Date(r.startDate),
+                    end: new Date(
+                        new Date(r.endDate).getFullYear(),
+                        new Date(r.endDate).getMonth(),
+                        new Date(r.endDate).getDate(),
+                        23, 59, 59, 999
+                    ),
+                    allDay: true,
+                    resource: { status: r.status },
+                    priceType: "NORMAL",
+                    guestCount: r.guestCount,
+                };
+            });
+
+        setEvents([...mappedAvail, ...mappedReq]);
+    }
+
 
 
     const handleSelectSlot = (slotInfo: SlotInfo) => {
@@ -280,6 +288,17 @@ export default function ReservationsCalendarPage() {
         } finally {
             setConfirmDelete(false);
         }
+    }
+
+    function canCancelReservation(startDate: Date): boolean {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const deadline = new Date(startDate);
+        deadline.setDate(deadline.getDate() - 1);
+        deadline.setHours(23, 59, 59, 999);
+
+        return today.getTime() <= deadline.getTime();
     }
 
     return (
@@ -543,26 +562,27 @@ export default function ReservationsCalendarPage() {
                         <DialogTitle>Cancel Reservation</DialogTitle>
                         <DialogContent>
                             <Typography>
-                                {cancelTarget &&
-                                    `Do you really want to cancel your reservation from ${cancelTarget.start.toDateString()} to ${cancelTarget.end.toDateString()}?`}
+                                {cancelTarget && (
+                                    canCancelReservation(cancelTarget.start) ? (
+                                        `Do you really want to cancel your reservation from ${cancelTarget.start.toDateString()} to ${cancelTarget.end.toDateString()}?`
+                                    ) : (
+                                        "It is too late to cancel this reservation. Cancellation is only possible until the day before it starts."
+                                    )
+                                )}
                             </Typography>
+
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setCancelTarget(null)}>No</Button>
                             <Button
                                 color="error"
                                 variant="contained"
+                                disabled={cancelTarget ? !canCancelReservation(cancelTarget.start) : true}
                                 onClick={async () => {
-                                    if (cancelTarget) {
+                                    if (cancelTarget && canCancelReservation(cancelTarget.start)) {
                                         try {
-                                            // await updateReservationRequestStatus(cancelTarget.id, "CANCELLED");
-                                            // setEvents((prev) =>
-                                            //     prev.map((ev) =>
-                                            //         ev.id === cancelTarget.id
-                                            //             ? { ...ev, resource: { status: "CANCELLED" }, title: "Reservation cancelled" }
-                                            //             : ev
-                                            //     )
-                                            // );
+                                            await cancelReservation(cancelTarget.id);
+                                            await refreshCalendar(id ?? "", guestId);
                                             setCancelTarget(null);
                                         } catch (err) {
                                             console.error("Failed to cancel:", err);
@@ -573,6 +593,7 @@ export default function ReservationsCalendarPage() {
                                 Yes, Cancel
                             </Button>
                         </DialogActions>
+
                     </Dialog>
 
                 </Paper>
