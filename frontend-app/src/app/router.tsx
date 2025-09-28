@@ -8,6 +8,7 @@ import EditAccommodationPage from "../features/accommodations/pages/EditAccommod
 import AccommodationDetailsPage from "../features/accommodations/pages/AccommodationDetailsPage.tsx";
 import AvailabilityCalendarPage from "../features/booking/pages/AvailabilityCalendarPage.tsx";
 import Login from "../features/auth/pages/Login.tsx";
+import Profile from "../features/auth/pages/Profile.tsx";
 
 
 const router = createBrowserRouter([
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "/auth/register",
     element: <Register />,
+  },
+  {
+    path: "/auth/profile",
+    element: <Profile />,
   },
   {
     path: "/accommodations",
