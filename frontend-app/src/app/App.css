@@ -37,3 +37,17 @@
 .read-the-docs {
   color: #888;
 }
+
+.custom-calendar .rbc-month-view {
+  border: 2px solid #333; /* okvir oko celog kalendara */
+}
+
+.custom-calendar .rbc-day-bg {
+  border: 2px solid #666; /* border oko svake ćelije */
+}
+
+/* App.css */
+.rbc-selected-cell {
+  background-color: rgba(0, 0, 0, 0.15) !important; /* jači kontrast */
+  border: 3px solid #ff9800 !important; /* narandžast okvir oko selektovanog */
+}

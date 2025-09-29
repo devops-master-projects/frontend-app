@@ -33,6 +33,22 @@ export type ChangeCredentialsRequest = {
   newPassword?: string;
 };
 
+interface JwtPayload {
+  email?: string;
+  preferred_username?: string;
+  given_name?: string;
+  family_name?: string;
+  realm_access?: {
+    roles?: string[];
+  };
+  resource_access?: {
+    [clientId: string]: {
+      roles?: string[];
+    };
+  };
+}
+
+
 export function setTokens(resp: LoginResponse) {
   localStorage.setItem('access_token', resp.access_token);
   localStorage.setItem('refresh_token', resp.refresh_token);
@@ -80,7 +96,13 @@ export async function registerUser(body: RegisterRequest): Promise<string> {
   return text;
 }
 
+
+
+export function getRole(): string {
+  return getUserInfoFromToken()?.role?.toUpperCase() || "";
+}
 export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
+  clearTokens();
   const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -92,9 +114,68 @@ export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
   }
   const data: LoginResponse = await res.json();
   setTokens(data);
+  console.log(getUserInfoFromToken());
   return data;
 }
 
+export function parseJwt(token: string): unknown {
+  try {
+    const base64Url = token.split('.')[1]; // payload deo
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+        atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Invalid JWT", e);
+    return null;
+  }
+}
+
+export interface UserInfo {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: "guest" | "host";
+}
+
+export function getUserInfoFromToken(): UserInfo | null {
+  const token = localStorage.getItem("access_token");
+  if (!token) return null;
+
+  const payload = parseJwt(token) as JwtPayload;
+  if (!payload) return null;
+
+  const allRoles: string[] = [];
+
+  if (Array.isArray(payload.realm_access?.roles)) {
+    if (payload.realm_access) {
+      allRoles.push(...payload.realm_access.roles);
+    }
+  }
+
+  if (payload.resource_access) {
+    Object.values(payload.resource_access).forEach((res) => {
+      if (Array.isArray(res.roles)) {
+        allRoles.push(...res.roles);
+      }
+    });
+  }
+
+
+  const foundRole = allRoles.find(r => r === "guest" || r === "host");
+  const userInfo: UserInfo = {
+    email: payload.email || payload.preferred_username,
+    firstName: payload.given_name,
+    lastName: payload.family_name,
+    role: foundRole as "guest" | "host" | undefined, // cast
+  };
+
+  return userInfo;
+}
 export async function refreshToken(): Promise<LoginResponse> {
   const refresh_token = localStorage.getItem('refresh_token');
   if (!refresh_token) throw new Error('No refresh token');
@@ -122,6 +203,7 @@ export async function getProfile(): Promise<UpdateProfileRequest> {
     throw new Error(txt || `HTTP ${res.status}`);
   }
   return res.json();
+
 }
 
 export async function updateProfile(body: UpdateProfileRequest): Promise<string> {

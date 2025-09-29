@@ -17,10 +17,9 @@ import {
     DialogActions,
     Button,
 } from "@mui/material";
-import Navbar from "../../accommodations/pages/Navbar.tsx";
+import HostNavbar from "../../accommodations/navbar/HostNavbar.tsx";
 import {
-    createAvailability, deleteAvailability,
-    getAvailability,
+    createAvailability, deleteAvailability, getAvailability,
     updateAvailability
 } from "../api/bookingApi.ts";
 import { useParams } from "react-router-dom";
@@ -77,7 +76,6 @@ export default function AvailabilityCalendarPage() {
         getAvailability(id).then((data) => {
             const mapped: MyEvent[] = data.map((a) => {
                 let title: string;
-
                 if (a.status === "RESERVED") {
                     title = "Reserved";
                 } else if (a.priceType !== "NORMAL") {
@@ -101,6 +99,8 @@ export default function AvailabilityCalendarPage() {
                     priceType: a.priceType,
                 };
             });
+
+
 
             mapped.sort((a, b) => a.start.getTime() - b.start.getTime());
             setEvents(mapped);
@@ -270,7 +270,7 @@ export default function AvailabilityCalendarPage() {
 
     return (
         <>
-            <Navbar />
+            <HostNavbar />
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
                 <Paper sx={{ p: 3, width: "100%", maxWidth: "1200px" }}>
                     {/* Modal za edit */}

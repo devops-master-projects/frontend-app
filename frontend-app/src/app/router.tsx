@@ -7,8 +7,12 @@ import NewAmenityPage from "../features/accommodations/pages/NewAmenityPage.tsx"
 import EditAccommodationPage from "../features/accommodations/pages/EditAccommodationPage.tsx";
 import AccommodationDetailsPage from "../features/accommodations/pages/AccommodationDetailsPage.tsx";
 import AvailabilityCalendarPage from "../features/booking/pages/AvailabilityCalendarPage.tsx";
+import ReservationsCalendarPage from "../features/booking/pages/ReservationsCalendarPage.tsx";
+import HostAccommodationRequestsPage from "../features/booking/pages/HostAccommodationRequestsPage.tsx";
 import Login from "../features/auth/pages/Login.tsx";
+import SearchResultsPage from "../features/accommodations/pages/SearchResultsPage.tsx";
 import Profile from "../features/auth/pages/Profile.tsx";
+
 
 
 const router = createBrowserRouter([
@@ -52,6 +56,19 @@ const router = createBrowserRouter([
     path: "/accommodations/:id/availability/new",
     element: <AvailabilityCalendarPage />,
   },
+  {
+    path: "/accommodations/:id/reservations/new",
+    element: <ReservationsCalendarPage />,
+  },
+  {
+    path: "/accommodations/:id/requests",
+    element: <HostAccommodationRequestsPage />,
+  },
+  {
+    path: "/search-results",
+    element: <SearchResultsPage />,
+  },
+
 ]);
 
 export function AppRouter() {

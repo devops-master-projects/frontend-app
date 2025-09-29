@@ -1,4 +1,5 @@
-import { useState } from "react";
+import {useState} from "react";
+import type {ReactElement} from "react";
 import {
     Card,
     CardContent,
@@ -10,13 +11,17 @@ import {
 } from "@mui/material";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import SwipeableViews from 'react-swipeable-views';
-import type { AccommodationResponseDto } from "../api/accommodationsApi";
+
 import { Link } from "react-router-dom";
-type Props = { accommodation: AccommodationResponseDto };
+import {getRole} from "../../auth/api/authApi.ts";
+import type { SearchResponse} from "../api/accommodationsApi.ts";
+type Props = { accommodation: SearchResponse };
 
 export default function AccommodationCard({ accommodation }: Props) {
     const [activeStep, setActiveStep] = useState(0);
-    const maxSteps = accommodation.urlPhotos?.length ?? 0;
+    const maxSteps = accommodation.photos?.length ?? 0;
+    console.log("acc: " , accommodation);
+    const role : string = getRole();
 
     return (
         <Card sx={{ maxWidth: 350, minHeight: 500, maxHeight: 500}}>
@@ -27,14 +32,13 @@ export default function AccommodationCard({ accommodation }: Props) {
                         onChangeIndex={setActiveStep}
                         enableMouseEvents
                     >
-                        {accommodation.urlPhotos.map((photoUrl, idx) => (
+                        {accommodation.photos.map((photoUrl, idx) => (
                             <CardMedia
                                 key={idx}
                                 component="img"
                                 sx={{ height: 250 }}
                                 image={photoUrl}
-                                title={`${accommodation.name} - slika ${idx + 1}`}
-                            />
+                                title={`${accommodation.name} - ${idx + 1}`}></CardMedia> as ReactElement
                         ))}
                     </SwipeableViews>
 
@@ -49,7 +53,7 @@ export default function AccommodationCard({ accommodation }: Props) {
                                 disabled={activeStep === maxSteps - 1 || maxSteps === 1}
                             >
                                 Next <KeyboardArrowRight />
-                            </Button>
+                            </Button> as ReactElement
                         }
                         backButton={
                             <Button
@@ -58,10 +62,10 @@ export default function AccommodationCard({ accommodation }: Props) {
                                 disabled={activeStep === 0 || maxSteps === 1}
                             >
                                 <KeyboardArrowLeft /> Back
-                            </Button>
+                            </Button> as ReactElement
                         }
                     />
-                </>
+                </> as ReactElement
             )}
 
 
@@ -97,14 +101,15 @@ export default function AccommodationCard({ accommodation }: Props) {
                 >
                     DETAILS
                 </Button>
+                { role === "HOST" &&
                 <Button
                     size="small"
                     component={Link}
                     to={`/accommodations/${accommodation.id}/edit`}
                 >
                     EDIT
-                </Button>
-
+                </Button> as ReactElement
+                }
 
             </CardActions>
         </Card>
