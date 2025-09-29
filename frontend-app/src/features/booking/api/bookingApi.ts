@@ -1,3 +1,5 @@
+import {getAccessToken, getTokenType} from "../../auth/api/authApi.ts";
+
 export type AvailabilityRequestDto = {
     accommodationId: string;
     startDate: string;
@@ -45,24 +47,21 @@ export type ReservationRequestResponseDto = {
 
 };
 
-// export const guestId = "22b2383b-2f46-4116-8015-462c32531af1";
-export const guestId="7f3c2e7a-0d43-4b1d-91a4-0d5a0c99f6a9"
-/**
- * CREATE reservation request
- * TODO! ID korisnika treba da ide iz tokena
- */
 export async function createReservationRequest(
     dto: ReservationRequestCreateDto
 ): Promise<ReservationRequestResponseDto> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(`${BASE_URL}/api/reservation-requests`, {
-        // TODO!
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Guest-Id": guestId,
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
         },
         body: JSON.stringify(dto),
     });
+
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
@@ -72,13 +71,24 @@ export async function createReservationRequest(
 
 /**
  * GET reservation requests by guest
- * TODO! uzece iz tokena
  */
 export async function getReservationRequestsByGuest(
-    guestId: string,
     accommodationId: string
 ): Promise<ReservationRequestResponseDto[]> {
-    const res = await fetch(`${BASE_URL}/api/reservation-requests/guest/${guestId}/${accommodationId}`);
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
+    const res = await fetch(
+        `${BASE_URL}/api/reservation-requests/guest/${accommodationId}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
+        }
+    );
+
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
@@ -92,7 +102,20 @@ export async function getReservationRequestsByGuest(
 export async function getReservationRequestsByAccommodation(
     accommodationId: string
 ): Promise<ReservationRequestResponseDto[]> {
-    const res = await fetch(`${BASE_URL}/api/reservation-requests/accommodation/${accommodationId}`);
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
+    const res = await fetch(
+        `${BASE_URL}/api/reservation-requests/accommodation/${accommodationId}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
+        }
+    );
+
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
@@ -107,9 +130,20 @@ export async function updateReservationRequestStatus(
     id: string,
     status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED"
 ): Promise<ReservationRequestResponseDto> {
-    const res = await fetch(`${BASE_URL}/api/reservation-requests/${id}/status?status=${status}`, {
-        method: "PATCH",
-    });
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
+    const res = await fetch(
+        `${BASE_URL}/api/reservation-requests/${id}/status?status=${status}`,
+        {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
+        }
+    );
+
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
@@ -118,32 +152,28 @@ export async function updateReservationRequestStatus(
 }
 
 
-
-
-/**
- * GET availability for accommodation
- * TODO: iz uloge mogu ove dve metode da se ekstrahuju
- */
 export async function getAvailability(
     accommodationId: string
 ): Promise<AvailabilityResponseDto[]> {
-    const res = await fetch(`${BASE_URL}/api/availability/${accommodationId}/calendar`);
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
+    const res = await fetch(
+        `${BASE_URL}/api/availability/${accommodationId}/calendar`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
+        }
+    );
+
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
     }
-    return res.json();
-}
 
-
-export async function getAvailabilityHost(
-    accommodationId: string
-): Promise<AvailabilityResponseDto[]> {
-    const res = await fetch(`${BASE_URL}/api/availability/${accommodationId}/calendarHost`);
-    if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `HTTP ${res.status}`);
-    }
     return res.json();
 }
 
@@ -153,9 +183,15 @@ export async function getAvailabilityHost(
 export async function createAvailability(
     request: AvailabilityRequestDto
 ): Promise<AvailabilityResponseDto> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(`${BASE_URL}/api/availability`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+        },
         body: JSON.stringify(request),
     });
 
@@ -163,9 +199,9 @@ export async function createAvailability(
         const text = await res.text();
         throw new Error(text || `HTTP ${res.status}`);
     }
+
     return res.json();
 }
-
 /**
  * PUT update availability
  */
@@ -173,9 +209,15 @@ export async function updateAvailability(
     id: string,
     request: Partial<AvailabilityRequestDto>
 ): Promise<AvailabilityResponseDto> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(`${BASE_URL}/api/availability/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+        },
         body: JSON.stringify(request),
     });
 
@@ -186,25 +228,19 @@ export async function updateAvailability(
     return res.json();
 }
 
+
 /**
  * DELETE availability
  */
 export async function deleteAvailability(id: string): Promise<void> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(`${BASE_URL}/api/availability/${id}`, {
-        method: "DELETE",
-    });
-
-    if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `HTTP ${res.status}`);
-    }
-}
-
-export async function deleteReservationRequest(id: string): Promise<void> {
-    const res = await fetch(`${BASE_URL}/api/reservation-requests/${id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
         },
     });
 
@@ -213,6 +249,26 @@ export async function deleteReservationRequest(id: string): Promise<void> {
         throw new Error(text || `HTTP ${res.status}`);
     }
 }
+
+
+export async function deleteReservationRequest(id: string): Promise<void> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
+    const res = await fetch(`${BASE_URL}/api/reservation-requests/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+        },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+}
+
 
 export type ReservationRequestUpdateDto = {
     startDate: string;
@@ -224,10 +280,14 @@ export async function updateReservationRequest(
     id: string,
     dto: ReservationRequestUpdateDto
 ): Promise<ReservationRequestResponseDto> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(`${BASE_URL}/api/reservation-requests/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
         },
         body: JSON.stringify(dto),
     });
@@ -239,11 +299,16 @@ export async function updateReservationRequest(
     return res.json();
 }
 
+
 export async function cancelReservation(requestId: string): Promise<void> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(`${BASE_URL}/api/reservation-requests/${requestId}/cancel`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
         },
     });
 
@@ -252,8 +317,4 @@ export async function cancelReservation(requestId: string): Promise<void> {
         throw new Error(text || `HTTP ${res.status}`);
     }
 }
-
-
-
-
 

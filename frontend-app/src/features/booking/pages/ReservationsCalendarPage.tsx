@@ -24,7 +24,7 @@ import {
     createReservationRequest,
     deleteReservationRequest,
     getAvailability,
-    getReservationRequestsByGuest, guestId, updateReservationRequest
+    getReservationRequestsByGuest, updateReservationRequest
 } from "../api/bookingApi.ts";
 import { useParams } from "react-router-dom";
 import type {AccommodationResponseDto} from "../../accommodations/api/accommodationsApi.ts";
@@ -77,13 +77,13 @@ export default function ReservationsCalendarPage() {
 
     useEffect(() => {
         if (!id) return;
-        refreshCalendar(id, guestId);
+        refreshCalendar(id);
     }, [id]);
 
-    async function refreshCalendar(accommodationId: string, guestId: string) {
+    async function refreshCalendar(accommodationId: string) {
         const [availability, requests, accommodation] = await Promise.all([
             getAvailability(accommodationId),
-            getReservationRequestsByGuest(guestId, accommodationId),
+            getReservationRequestsByGuest(accommodationId),
             fetchAccommodationById(accommodationId),
         ]);
 
@@ -208,7 +208,7 @@ export default function ReservationsCalendarPage() {
 
             setEvents((prev) => [...prev, newReservation]);
             setOpen(false);
-            await refreshCalendar(id ?? "", guestId);
+            await refreshCalendar(id ?? "");
 
         } catch (err) {
             console.error("Failed to create reservation request:", err);
@@ -275,7 +275,7 @@ export default function ReservationsCalendarPage() {
             );
 
             setEditTarget(null);
-            await refreshCalendar(id ?? "", guestId);
+            await refreshCalendar(id ?? "");
 
         } catch (err) {
             console.error("Failed to update reservation:", err);
@@ -587,7 +587,7 @@ export default function ReservationsCalendarPage() {
                                     if (cancelTarget && canCancelReservation(cancelTarget.start)) {
                                         try {
                                             await cancelReservation(cancelTarget.id);
-                                            await refreshCalendar(id ?? "", guestId);
+                                            await refreshCalendar(id ?? "");
                                             setCancelTarget(null);
                                         } catch (err) {
                                             console.error("Failed to cancel:", err);

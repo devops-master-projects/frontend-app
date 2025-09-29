@@ -19,8 +19,7 @@ import {
 } from "@mui/material";
 import HostNavbar from "../../accommodations/navbar/HostNavbar.tsx";
 import {
-    createAvailability, deleteAvailability,
-    getAvailabilityHost,
+    createAvailability, deleteAvailability, getAvailability,
     updateAvailability
 } from "../api/bookingApi.ts";
 import { useParams } from "react-router-dom";
@@ -74,7 +73,7 @@ export default function AvailabilityCalendarPage() {
 
     useEffect(() => {
         if (!id) return;
-        getAvailabilityHost(id).then((data) => {
+        getAvailability(id).then((data) => {
             const mapped: MyEvent[] = data.map((a) => {
                 let title: string;
                 if (a.status === "RESERVED") {
