@@ -11,6 +11,8 @@ import ReservationsCalendarPage from "../features/booking/pages/ReservationsCale
 import HostAccommodationRequestsPage from "../features/booking/pages/HostAccommodationRequestsPage.tsx";
 import Login from "../features/auth/pages/Login.tsx";
 import SearchResultsPage from "../features/accommodations/pages/SearchResultsPage.tsx";
+import Profile from "../features/auth/pages/Profile.tsx";
+
 
 
 const router = createBrowserRouter([
@@ -25,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: "/auth/register",
     element: <Register />,
+  },
+  {
+    path: "/auth/profile",
+    element: <Profile />,
   },
   {
     path: "/accommodations",
