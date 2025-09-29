@@ -33,6 +33,21 @@ export type ChangeCredentialsRequest = {
   newPassword?: string;
 };
 
+interface JwtPayload {
+  email?: string;
+  preferred_username?: string;
+  given_name?: string;
+  family_name?: string;
+  realm_access?: {
+    roles?: string[];
+  };
+  resource_access?: {
+    [clientId: string]: {
+      roles?: string[];
+    };
+  };
+}
+
 
 export function setTokens(resp: LoginResponse) {
   localStorage.setItem('access_token', resp.access_token);
@@ -84,7 +99,7 @@ export async function registerUser(body: RegisterRequest): Promise<string> {
 
 
 export function getRole(): string {
-  return "GUEST";
+  return getUserInfoFromToken()?.role?.toUpperCase() || "";
 }
 export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
   clearTokens();
@@ -131,22 +146,25 @@ export function getUserInfoFromToken(): UserInfo | null {
   const token = localStorage.getItem("access_token");
   if (!token) return null;
 
-  const payload = parseJwt(token);
+  const payload = parseJwt(token) as JwtPayload;
   if (!payload) return null;
 
   const allRoles: string[] = [];
 
   if (Array.isArray(payload.realm_access?.roles)) {
-    allRoles.push(...payload.realm_access.roles);
+    if (payload.realm_access) {
+      allRoles.push(...payload.realm_access.roles);
+    }
   }
 
   if (payload.resource_access) {
-    Object.values(payload.resource_access).forEach((res: unknown) => {
+    Object.values(payload.resource_access).forEach((res) => {
       if (Array.isArray(res.roles)) {
         allRoles.push(...res.roles);
       }
     });
   }
+
 
   const foundRole = allRoles.find(r => r === "guest" || r === "host");
   const userInfo: UserInfo = {

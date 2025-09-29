@@ -1,4 +1,5 @@
 import type {AmenityResponseDto} from "./amenitiesApi.ts";
+import {getAccessToken, getTokenType} from "../../auth/api/authApi.ts";
 
 export type AccommodationResponseDto = {
     id: string;
@@ -75,13 +76,21 @@ export interface SearchResponse {
     pricingMode: "PER_PERSON" | "PER_ACCOMMODATION" | "PER_NIGHT" | "FIXED";
 }
 
+
 export async function getAutoConfirm(accommodationId: string): Promise<boolean> {
-    const res = await fetch(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
+    const res = await fetch(
+        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
+        }
+    );
 
     if (!res.ok) {
         const text = await res.text();
@@ -92,15 +101,24 @@ export async function getAutoConfirm(accommodationId: string): Promise<boolean> 
     return data.autoConfirm;
 }
 
+export async function updateAutoConfirm(
+    accommodationId: string,
+    autoConfirm: boolean
+): Promise<void> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
 
-export async function updateAutoConfirm(accommodationId: string, autoConfirm: boolean): Promise<void> {
-    const res = await fetch(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ autoConfirm }),
-    });
+    const res = await fetch(
+        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`,
+        {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
+            body: JSON.stringify({ autoConfirm }),
+        }
+    );
 
     if (!res.ok) {
         const text = await res.text();
@@ -108,12 +126,18 @@ export async function updateAutoConfirm(accommodationId: string, autoConfirm: bo
     }
 }
 
-
 export async function fetchAccommodations(): Promise<SearchResponse[]> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     console.log(`${import.meta.env.VITE_SEARCH_API_URL}/api/search/all`);
+
     const res = await fetch(`${import.meta.env.VITE_SEARCH_API_URL}/api/search/all`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {})
+        },
     });
 
     if (!res.ok) {
@@ -151,15 +175,20 @@ export async function uploadPhotoToCloudinary(file: File): Promise<string> {
 export async function createAccommodation(
     request: AccommodationRequestDto
 ): Promise<AccommodationResponseDto> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(
         `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations`,
         {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
             body: JSON.stringify(request),
         }
     );
-
     if (!res.ok) {
         const text = await res.text();
         throw new Error(text || `Backend error (HTTP ${res.status})`);
@@ -186,16 +215,22 @@ export async function fetchAccommodationById(id: string): Promise<AccommodationR
     return res.json();
 }
 
-// PUT update accommodation
+
 export async function updateAccommodation(
     id: string,
     request: AccommodationRequestDto
 ): Promise<AccommodationResponseDto> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(
         `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${id}`,
         {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
             body: JSON.stringify(request),
         }
     );
@@ -207,7 +242,6 @@ export async function updateAccommodation(
 
     return res.json();
 }
-
 export interface SearchRequest {
     location: string;
     guests: number;
