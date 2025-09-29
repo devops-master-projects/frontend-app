@@ -10,6 +10,7 @@ import AvailabilityCalendarPage from "../features/booking/pages/AvailabilityCale
 import ReservationsCalendarPage from "../features/booking/pages/ReservationsCalendarPage.tsx";
 import HostAccommodationRequestsPage from "../features/booking/pages/HostAccommodationRequestsPage.tsx";
 import Login from "../features/auth/pages/Login.tsx";
+import SearchResultsPage from "../features/accommodations/pages/SearchResultsPage.tsx";
 
 
 const router = createBrowserRouter([
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
   {
     path: "/accommodations/:id/requests",
     element: <HostAccommodationRequestsPage />,
+  },
+  {
+    path: "/search-results",
+    element: <SearchResultsPage />,
   },
 
 ]);

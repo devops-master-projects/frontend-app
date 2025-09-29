@@ -20,17 +20,21 @@ import {
 } from "../api/bookingApi";
 import type { ReservationRequestResponseDto } from "../api/bookingApi";
 import HostNavbar from "../../accommodations/navbar/HostNavbar.tsx";
+import {getAutoConfirm, updateAutoConfirm} from "../../accommodations/api/accommodationsApi.ts";
 
 export default function HostAccommodationRequestsPage() {
     const { id } = useParams<{ id: string }>();
     const [requests, setRequests] = useState<ReservationRequestResponseDto[]>([]);
     const [autoApprove, setAutoApprove] = useState(false);
-
     useEffect(() => {
         if (!id) return;
         getReservationRequestsByAccommodation(id)
             .then((data) => setRequests(data))
             .catch((err) => console.error("Failed to load requests:", err));
+
+        getAutoConfirm(id)
+            .then((value) => setAutoApprove(value))
+            .catch((err) => console.error("Failed to load autoConfirm:", err));
     }, [id]);
 
     async function refreshRequests() {
@@ -57,6 +61,16 @@ export default function HostAccommodationRequestsPage() {
         }
     };
 
+    const handleChange = async (checked: boolean) => {
+        try {
+
+            setAutoApprove(checked);
+            await updateAutoConfirm(id ?? "", checked);
+        } catch (err) {
+            console.error("Failed to update autoConfirm:", err); // rollback ako padne
+        }
+    };
+
     return (
         <>
         <HostNavbar/>
@@ -70,7 +84,7 @@ export default function HostAccommodationRequestsPage() {
                         control={
                             <Switch
                                 checked={autoApprove}
-                                onChange={(e) => setAutoApprove(e.target.checked)}
+                                onChange={(e) => handleChange(e.target.checked)}
                                 color="primary"
                             /> as ReactElement
                         }

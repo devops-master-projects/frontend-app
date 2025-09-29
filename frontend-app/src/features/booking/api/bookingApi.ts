@@ -45,8 +45,8 @@ export type ReservationRequestResponseDto = {
 
 };
 
-export const guestId = "22b2383b-2f46-4116-8015-462c32531af1";
-// export const guestId="7f3c2e7a-0d43-4b1d-91a4-0d5a0c99f6a9" // otkazao 1
+// export const guestId = "22b2383b-2f46-4116-8015-462c32531af1";
+export const guestId="7f3c2e7a-0d43-4b1d-91a4-0d5a0c99f6a9"
 /**
  * CREATE reservation request
  * TODO! ID korisnika treba da ide iz tokena
@@ -252,6 +252,8 @@ export async function cancelReservation(requestId: string): Promise<void> {
         throw new Error(text || `HTTP ${res.status}`);
     }
 }
+
+
 
 
 

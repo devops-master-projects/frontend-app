@@ -208,6 +208,8 @@ export default function ReservationsCalendarPage() {
 
             setEvents((prev) => [...prev, newReservation]);
             setOpen(false);
+            await refreshCalendar(id ?? "", guestId);
+
         } catch (err) {
             console.error("Failed to create reservation request:", err);
         }
@@ -271,7 +273,10 @@ export default function ReservationsCalendarPage() {
                     resource: { status: updated.status }
                 } : ev))
             );
+
             setEditTarget(null);
+            await refreshCalendar(id ?? "", guestId);
+
         } catch (err) {
             console.error("Failed to update reservation:", err);
         }

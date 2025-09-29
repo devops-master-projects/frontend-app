@@ -34,9 +34,84 @@ export type AccommodationRequestDto = {
 };
 
 
-export async function fetchAccommodations(): Promise<AccommodationResponseDto[]> {
-    console.log(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations`);
-    const res = await fetch(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations`, {
+export interface AvailabilityDto {
+    id: string;
+    startDate: string;   // ISO string (npr. "2025-10-05")
+    endDate: string;
+    price: number;
+    priceType: string;   // "NORMAL", "SEASONAL", "HOLIDAY", ...
+    status: string;      // "AVAILABLE" ili "OCCUPIED"
+}
+
+export interface AccommodationDocument {
+    id: string;
+    name: string;
+    description: string;
+    minGuests: number;
+    maxGuests: number;
+    autoConfirm: boolean;
+    pricingMode: string;   // "PER_NIGHT" ili "PER_PERSON"
+
+    location: LocationDto;
+    amenities: string[];
+    photos: string[];
+    availabilities?: AvailabilityDto[];
+}
+
+
+
+export interface SearchResponse {
+    id: string;
+    name: string;
+    description: string;
+    location: LocationDto;
+    photos: string[];
+    amenities: string[];
+    minGuests: number;
+    maxGuests: number;
+
+    totalPrice: number;   // BigDecimal → number
+    unitPrice: number;    // BigDecimal → number
+    pricingMode: "PER_PERSON" | "PER_ACCOMMODATION" | "PER_NIGHT" | "FIXED";
+}
+
+export async function getAutoConfirm(accommodationId: string): Promise<boolean> {
+    const res = await fetch(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.autoConfirm;
+}
+
+
+export async function updateAutoConfirm(accommodationId: string, autoConfirm: boolean): Promise<void> {
+    const res = await fetch(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ autoConfirm }),
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+}
+
+
+export async function fetchAccommodations(): Promise<SearchResponse[]> {
+    console.log(`${import.meta.env.VITE_SEARCH_API_URL}/api/search/all`);
+    const res = await fetch(`${import.meta.env.VITE_SEARCH_API_URL}/api/search/all`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
     });
@@ -124,6 +199,30 @@ export async function updateAccommodation(
             body: JSON.stringify(request),
         }
     );
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+
+    return res.json();
+}
+
+export interface SearchRequest {
+    location: string;
+    guests: number;
+    startDate?: string;
+    endDate?: string;
+}
+
+export async function searchAccommodations(
+    req: SearchRequest
+): Promise<SearchResponse[]> {
+    const res = await fetch(`${import.meta.env.VITE_SEARCH_API_URL}/api/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req),
+    });
 
     if (!res.ok) {
         const text = await res.text();

@@ -11,14 +11,16 @@ import {
 } from "@mui/material";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import SwipeableViews from 'react-swipeable-views';
-import type { AccommodationResponseDto } from "../api/accommodationsApi";
+
 import { Link } from "react-router-dom";
 import {getRole} from "../../auth/api/authApi.ts";
-type Props = { accommodation: AccommodationResponseDto };
+import type { SearchResponse} from "../api/accommodationsApi.ts";
+type Props = { accommodation: SearchResponse };
 
 export default function AccommodationCard({ accommodation }: Props) {
     const [activeStep, setActiveStep] = useState(0);
-    const maxSteps = accommodation.urlPhotos?.length ?? 0;
+    const maxSteps = accommodation.photos?.length ?? 0;
+    console.log("acc: " , accommodation);
     const role : string = getRole();
 
     return (
@@ -30,7 +32,7 @@ export default function AccommodationCard({ accommodation }: Props) {
                         onChangeIndex={setActiveStep}
                         enableMouseEvents
                     >
-                        {accommodation.urlPhotos.map((photoUrl, idx) => (
+                        {accommodation.photos.map((photoUrl, idx) => (
                             <CardMedia
                                 key={idx}
                                 component="img"
