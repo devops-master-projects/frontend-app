@@ -115,14 +115,27 @@ jobs:
           fi
           echo "list=${TAGS}" >> $GITHUB_OUTPUT
 
-      - name: Build & Push with Kaniko (GHCR)
-        uses: aevea/action-kaniko@v0.11.0
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          image: ${{ steps.img.outputs.name }}
-          tag: ${{ steps.tags.outputs.list }}
-          path: ./frontend-app/frontend-app
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          cache: true
-          cache_registry: ${{ steps.img.outputs.name }}-cache
+
+      - name: Build & Push with Kaniko (GHCR)
+        run: |
+          DESTINATIONS=""
+          IFS=',' read -ra TAGS <<< "${{ steps.tags.outputs.list }}"
+          for tag in "${TAGS[@]}"; do
+            DESTINATIONS="$DESTINATIONS --destination=${{ steps.img.outputs.name }}:$tag"
+          done
+          
+          docker run \
+            -v ${{ github.workspace }}/frontend-app/frontend-app:/workspace \
+            -v $HOME/.docker/config.json:/kaniko/.docker/config.json:ro \
+            gcr.io/kaniko-project/executor:latest \
+            --context=/workspace \
+            --dockerfile=Dockerfile \
+            $DESTINATIONS \
+            --cache=true \
+            --cache-repo=${{ steps.img.outputs.name }}-cache
