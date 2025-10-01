@@ -122,7 +122,6 @@ jobs:
           image: ${{ steps.img.outputs.name }}
           tag: ${{ steps.tags.outputs.list }}
           path: ./frontend-app/frontend-app
-          build_file: Dockerfile
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           cache: true
