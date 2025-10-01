@@ -131,11 +131,12 @@ jobs:
           done
           
           docker run \
-            -v ${{ github.workspace }}/frontend-app/frontend-app:/workspace \
+            -v ${{ github.workspace }}/frontend-app:/workspace \
             -v $HOME/.docker/config.json:/kaniko/.docker/config.json:ro \
             gcr.io/kaniko-project/executor:latest \
             --context=/workspace \
             --dockerfile=Dockerfile \
             $DESTINATIONS \
             --cache=true \
-            --cache-repo=${{ steps.img.outputs.name }}-cache
+            --cache-repo=${{ steps.img.outputs.name }}-cache \
+            --verbosity=debug
