@@ -1,15 +1,19 @@
-name: PR CI
+name: CI & Kaniko
 
 on:
   pull_request:
     branches: [ develop, master ]
   push:
-    branches: [ feature/** ]   # opcionalno: pali CI i na push u feature granama
-  workflow_dispatch:           # ručni trigger u slučaju potrebe
+    branches: [ develop, master, feature/** ] 
+  workflow_dispatch:
 
 permissions:
   contents: read
   pull-requests: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-test:
@@ -20,8 +24,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
       - name: Use Node
         uses: actions/setup-node@v4
@@ -42,22 +45,95 @@ jobs:
       - name: Test (Vitest)
         env:
           VITE_API_URL: http://localhost:8082
+          VITE_ACCOMMODATION_API_URL: http://localhost:8085
+          VITE_CLOUDINARY_CLOUD_NAME: dok1mjki6
+          VITE_CLOUDINARY_UPLOAD_PRESET: frontend_upload
+          VITE_BOOKING_API_URL: http://localhost:8086
+          VITE_SEARCH_API_URL: http://localhost:8087
+          VITE_NOTIFICATION_API_URL: http://localhost:8088
         run: npm run test -- --run --coverage
 
       - name: Build
         env:
           VITE_API_URL: http://localhost:8082
+          VITE_ACCOMMODATION_API_URL: http://localhost:8085
+          VITE_CLOUDINARY_CLOUD_NAME: dok1mjki6
+          VITE_CLOUDINARY_UPLOAD_PRESET: frontend_upload
+          VITE_BOOKING_API_URL: http://localhost:8086
+          VITE_SEARCH_API_URL: http://localhost:8087
+          VITE_NOTIFICATION_API_URL: http://localhost:8088
         run: npm run build
 
   commitlint:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
       - uses: wagoid/commitlint-github-action@v6
         with:
           configFile: frontend-app/commitlint.config.cjs
+
+  kaniko:
+    if: github.event_name == 'push'
+    needs: [ build-and-test ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node (for reading package.json version)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Compute vars
+        id: v
+        run: |
+          echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "pkgver=$(node -p "require('./frontend-app/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Set image name
+        id: img
+        run: |
+          # ili hard-code: echo "name=anjap0906/frontend-app" >> $GITHUB_OUTPUT
+          echo "name=${{ github.repository_owner }}/frontend-app" >> $GITHUB_OUTPUT
+
+      - name: Docker auth config (Docker Hub)
+        run: |
+          mkdir -p /home/runner/.docker
+          cat > /home/runner/.docker/config.json <<EOF
+          {
+            "auths": {
+              "https://index.docker.io/v1/": {
+                "auth": "$(echo -n "${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}" | base64 -w 0)"
+              }
+            }
+          }
+          EOF
+
+      - name: Compute tags
+        id: tags
+        run: |
+          BR="${{ steps.v.outputs.branch }}"
+          PV="${{ steps.v.outputs.pkgver }}"
+          SH="${{ steps.v.outputs.sha }}"
+          if [ "$BR" = "master" ] || [ "$BR" = "main" ]; then
+            TAGS="latest,${PV},${PV}-${SH},sha-${SH}"
+          elif [ "$BR" = "develop" ]; then
+            TAGS="develop,${PV}-dev-${SH},sha-${SH}"
+          else
+            SAFE=$(echo "$BR" | tr '/' '-' )
+            TAGS="${SAFE},${SAFE}-${SH},sha-${SH}"
+          fi
+          echo "list=${TAGS}" >> $GITHUB_OUTPUT
+
+      - name: Build & Push with Kaniko
+        uses: aevea/action-kaniko@v0.11.0
+        with:
+          image: ${{ steps.img.outputs.name }}
+          tag: ${{ steps.tags.outputs.list }}
+          context: frontend-app
+          dockerfile: Dockerfile
+          cache: true
+          cache_registry: ${{ steps.img.outputs.name }}-cache
