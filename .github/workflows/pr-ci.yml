@@ -121,9 +121,9 @@ jobs:
           registry: ghcr.io
           image: ${{ steps.img.outputs.name }}
           tag: ${{ steps.tags.outputs.list }}
-          context: frontend-app 
-          dockerfile: Dockerfile
+          path: ./frontend-app
+          build_file: ./frontend-app/Dockerfile
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           cache: true
-          cache_registry: ghcr.io/${{ github.repository_owner }}/frontend-app-cache
+          cache_registry: ${{ steps.img.outputs.name }}-cache
