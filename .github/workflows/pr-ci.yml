@@ -4,12 +4,13 @@ on:
   pull_request:
     branches: [ develop, master ]
   push:
-    branches: [ develop, master, feature/** ] 
+    branches: [ develop, master, feature/** ]
   workflow_dispatch:
 
 permissions:
   contents: read
   pull-requests: read
+  packages: write 
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -93,24 +94,10 @@ jobs:
           echo "branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
           echo "pkgver=$(node -p "require('./frontend-app/package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Set image name
+      - name: Set image name (GHCR)
         id: img
         run: |
-          # ili hard-code: echo "name=anjap0906/frontend-app" >> $GITHUB_OUTPUT
-          echo "name=${{ github.repository_owner }}/frontend-app" >> $GITHUB_OUTPUT
-
-      - name: Docker auth config (Docker Hub)
-        run: |
-          mkdir -p /home/runner/.docker
-          cat > /home/runner/.docker/config.json <<EOF
-          {
-            "auths": {
-              "https://index.docker.io/v1/": {
-                "auth": "$(echo -n "${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}" | base64 -w 0)"
-              }
-            }
-          }
-          EOF
+          echo "name=ghcr.io/${{ github.repository_owner }}/frontend-app" >> $GITHUB_OUTPUT
 
       - name: Compute tags
         id: tags
@@ -128,12 +115,15 @@ jobs:
           fi
           echo "list=${TAGS}" >> $GITHUB_OUTPUT
 
-      - name: Build & Push with Kaniko
+      - name: Build & Push with Kaniko (GHCR)
         uses: aevea/action-kaniko@v0.11.0
         with:
+          registry: ghcr.io
           image: ${{ steps.img.outputs.name }}
           tag: ${{ steps.tags.outputs.list }}
-          context: frontend-app
+          context: frontend-app 
           dockerfile: Dockerfile
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
           cache: true
-          cache_registry: ${{ steps.img.outputs.name }}-cache
+          cache_registry: ghcr.io/${{ github.repository_owner }}/frontend-app-cache
