@@ -1,5 +1,5 @@
 import {AppBar, Toolbar, Typography, Box, IconButton, Collapse, TextField, Button} from "@mui/material";
-import { useNavigate} from "react-router-dom";
+import {Link as RouterLink, useNavigate} from "react-router-dom";
 import {Home, Search} from "@mui/icons-material";
 import {useState} from "react";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
@@ -69,6 +69,14 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
                     >
                         <Home />
                     </IconButton>
+                    <Button
+                        component={RouterLink}
+                        to="/notifications"
+                        color="inherit"
+                        sx={{ fontWeight: 600 }}
+                    >
+                        Notifications
+                    </Button>
                 </Box>
                 <Typography
                     variant="h6"
