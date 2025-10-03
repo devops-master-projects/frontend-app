@@ -42,7 +42,6 @@ export default function AccommodationDashboard() {
             <HostNavbar
                 onSearch={async (filters) => {
                     try {
-                        console.log("filters: ", filters)
                         const results = await searchAccommodations(filters);
                         navigate("/search-results", { state: { results } }); // šaljemo rezultate
                     } catch (err) {
