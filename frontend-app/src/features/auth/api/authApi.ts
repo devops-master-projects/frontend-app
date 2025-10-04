@@ -103,9 +103,13 @@ export function getRole(): string {
   return getUserInfoFromToken()?.role?.toUpperCase() || "";
 }
 
+export function getUserId(): string {
+  return getUserInfoFromToken()?.id || ""
+}
+
 
 export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
-  clearTokens();
+
   const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -116,6 +120,7 @@ export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
     throw new Error(errorText || `HTTP ${res.status}`);
   }
   const data: LoginResponse = await res.json();
+  clearTokens();
   setTokens(data);
   console.log(getUserInfoFromToken());
 
@@ -149,39 +154,43 @@ export interface UserInfo {
 
 export function getUserInfoFromToken(): UserInfo | null {
   const token = localStorage.getItem("access_token");
-  if (!token) return null;
+  if (!token) {
+    return null;
+  }
+  const expiresAtStr = localStorage.getItem("expires_at");
+  const expiresAt = expiresAtStr ? Number(expiresAtStr) : 0;
+  if (expiresAt && Date.now() > expiresAt) {
+    clearTokens(); // očisti localStorage
+    return null;
+  }
 
-  const payload = parseJwt(token) as JwtPayload;
+  const payload = parseJwt(token) as JwtPayload | null;
+
   if (!payload) return null;
 
-  const allRoles: string[] = [];
+  const realmRoles = Array.isArray(payload.realm_access?.roles)
+      ? payload.realm_access!.roles
+      : [];
 
-  if (Array.isArray(payload.realm_access?.roles)) {
-    if (payload.realm_access) {
-      allRoles.push(...payload.realm_access.roles);
-    }
-  }
+  const resourceRoles = payload.resource_access
+      ? Object.values(payload.resource_access).flatMap((res) =>
+          Array.isArray(res.roles) ? res.roles : []
+      )
+      : [];
 
-  if (payload.resource_access) {
-    Object.values(payload.resource_access).forEach((res) => {
-      if (Array.isArray(res.roles)) {
-        allRoles.push(...res.roles);
-      }
-    });
-  }
+  const allRoles: string[] = [...realmRoles, ...resourceRoles];
+  const foundRole = allRoles.find((r) => r === "guest" || r === "host");
 
-
-  const foundRole = allRoles.find(r => r === "guest" || r === "host");
-  const userInfo: UserInfo = {
+  return {
     id: payload.sub,
-    email: payload.email || payload.preferred_username,
+    email: payload.email || payload.preferred_username || undefined,
     firstName: payload.given_name,
     lastName: payload.family_name,
-    role: foundRole as "guest" | "host" | undefined, // cast
+    role: foundRole as "guest" | "host" | undefined,
   };
-
-  return userInfo;
 }
+
+
 export async function refreshToken(): Promise<LoginResponse> {
   const refresh_token = localStorage.getItem('refresh_token');
   if (!refresh_token) throw new Error('No refresh token');
@@ -234,4 +243,27 @@ export async function changeCredentials(body: ChangeCredentialsRequest): Promise
 
 export function logout() {
   clearTokens();
+}
+
+export interface HostProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export async function getHostProfile(hostId: string): Promise<HostProfile> {
+  const res = await authFetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/host/${hostId}`,
+      {
+        method: 'GET',
+      }
+  );
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || `HTTP ${res.status}`);
+  }
+
+  return res.json();
 }
