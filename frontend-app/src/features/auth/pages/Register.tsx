@@ -15,6 +15,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { registerUser } from '../api/authApi';
+import Navbar from "../../accommodations/navbar/Navbar.tsx";
 
 export default function Register() {
   const theme = useTheme();
@@ -81,6 +82,8 @@ export default function Register() {
   }
 
   return (
+      <>
+      <Navbar/>
     <Box
       sx={{
         minHeight: '100dvh',
@@ -241,5 +244,6 @@ export default function Register() {
         </Stack>
       </Paper>
     </Box>
+        </>
   );
 }

@@ -14,6 +14,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { loginUser } from '../api/authApi';
+import Navbar from "../../accommodations/navbar/Navbar.tsx";
 
 export default function Login() {
   const theme = useTheme();
@@ -64,6 +65,8 @@ export default function Login() {
   }
 
   return (
+      <>
+      <Navbar/>
     <Box
       sx={{
         minHeight: '100dvh',
@@ -172,5 +175,6 @@ export default function Login() {
         </Stack>
       </Paper>
     </Box>
+      </>
   );
 }
