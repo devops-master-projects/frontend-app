@@ -105,6 +105,7 @@ export function getRole(): string {
 
 
 
+
 export function getUserId(): string {
   return getUserInfoFromToken()?.id || ""
 }
@@ -155,6 +156,7 @@ export interface UserInfo {
 }
 
 
+
 export function getUserInfoFromToken(): UserInfo | null {
   const token = localStorage.getItem("access_token");
   if (!token) {
@@ -192,7 +194,6 @@ export function getUserInfoFromToken(): UserInfo | null {
     role: foundRole as "guest" | "host" | undefined,
   };
 }
-
 
 export async function refreshToken(): Promise<LoginResponse> {
   const refresh_token = localStorage.getItem('refresh_token');

@@ -19,6 +19,7 @@ import NewReviewPage from "../features/reviews/pages/NewReviewPage.tsx";
 import HostReviewPage from "../features/reviews/pages/HostReviewPage.tsx";
 import NewHostReviewPage from "../features/reviews/pages/NewHostReviewPage.tsx";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -101,6 +102,7 @@ const router = createBrowserRouter([
     path: "/hosts/:id/reviews/:reviewId/edit",
     element: <NewHostReviewPage />,
   },
+
 
 ]);
 
