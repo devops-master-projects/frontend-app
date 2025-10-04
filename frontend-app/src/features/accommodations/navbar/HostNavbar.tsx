@@ -8,7 +8,7 @@ import {
     TextField,
     ListItemText,
     Switch,
-    ListItem, List
+    ListItem, List, Tooltip
 } from "@mui/material";
 import {Link as RouterLink, useNavigate} from "react-router-dom";
 import { Home } from "@mui/icons-material";
@@ -32,7 +32,8 @@ type HostNavbarProps = {
     onHome?: () => void;
     enableSearch?: boolean;
 };
-
+import LogoutIcon from "@mui/icons-material/Logout";
+import {logout} from "../../auth/api/authApi.ts";
 export default function HostNavbar({ onSearch, onHome, enableSearch = false }: HostNavbarProps) {
     const [showSearch, setShowSearch] = useState(false);
     const [location, setLocation] = useState("");
@@ -94,6 +95,12 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
             .catch((err) => console.error("Failed to load notification settings", err));
     }, []);
 
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
+
+
     return (
         <AppBar
             position="static"
@@ -143,16 +150,17 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                 </Box>
 
                 {/* Desna strana */}
-                {enableSearch && (
+
                     <Box sx={{ marginLeft: "auto", display: "flex", gap: 1 }}>
-                        {/* Search dugme */}
+                        {enableSearch && (
+
                         <IconButton
                             color="inherit"
                             onClick={() => setShowSearch((prev) => !prev)}
                         >
                             <Search />
-                        </IconButton>
-
+                        </IconButton>  as ReactElement
+                        )}
                         {/* Notifications dugme */}
                         <IconButton
                             color="inherit"
@@ -161,6 +169,11 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                             <Notifications />
                         </IconButton>
 
+                        <Tooltip title="Logout">
+                            <IconButton color="inherit" onClick={handleLogout}>
+                                <LogoutIcon />
+                            </IconButton>
+                        </Tooltip>
                         <Popover
                             open={Boolean(anchorEl)}
                             anchorEl={anchorEl}
@@ -187,8 +200,8 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                                 ))}
                             </List>
                         </Popover>
-                    </Box> as ReactElement
-                )}
+                    </Box>
+
             </Toolbar>
 
             {/* Search forma koja se pojavi ispod */}

@@ -136,6 +136,25 @@ export default function LandingPage() {
           >
             <span>Sign Up</span>
           </Button>
+            <Button
+                href="/accommodations"
+                variant="outlined"
+                color="secondary"
+                size="large"
+                sx={{
+                    borderRadius: 999,
+                    fontWeight: 600,
+                    color: theme.palette.common.white,
+                    borderColor: theme.palette.common.white,
+                    '&:hover': {
+                        borderColor: theme.palette.secondary.main,
+                        backgroundColor: alpha(theme.palette.secondary.main, 0.1),
+                    },
+                }}
+            >
+                Skip
+            </Button>
+
         </Stack>
       </Container>
     </Box>
