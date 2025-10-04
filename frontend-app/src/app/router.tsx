@@ -14,9 +14,12 @@ import SearchResultsPage from "../features/accommodations/pages/SearchResultsPag
 import Profile from "../features/auth/pages/Profile.tsx";
 import NotificationDetailsPage from "../features/notifications/pages/NotificationDetailsPage.tsx";
 import NotificationsPage from "../features/notifications/pages/NotificationsPage.tsx";
+
 import NewReviewPage from "../features/reviews/pages/NewReviewPage.tsx";
 import HostReviewPage from "../features/reviews/pages/HostReviewPage.tsx";
 import NewHostReviewPage from "../features/reviews/pages/NewHostReviewPage.tsx";
+
+
 
 const router = createBrowserRouter([
   {
@@ -100,7 +103,6 @@ const router = createBrowserRouter([
     path: "/hosts/:id/reviews/:reviewId/edit",
     element: <NewHostReviewPage />,
   },
-
 
 ]);
 

@@ -103,6 +103,7 @@ export function getRole(): string {
   return getUserInfoFromToken()?.role?.toUpperCase() || "";
 }
 
+
 export function getUserId(): string {
   return getUserInfoFromToken()?.id || ""
 }
@@ -189,7 +190,6 @@ export function getUserInfoFromToken(): UserInfo | null {
     role: foundRole as "guest" | "host" | undefined,
   };
 }
-
 
 export async function refreshToken(): Promise<LoginResponse> {
   const refresh_token = localStorage.getItem('refresh_token');

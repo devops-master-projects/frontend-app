@@ -1,3 +1,5 @@
+
+
 import {
     AppBar,
     Toolbar,
@@ -145,54 +147,54 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
 
                 </Typography>
 
-                    <Box sx={{ marginLeft: "auto" }}>
-                        { enableSearch && (
+                <Box sx={{ marginLeft: "auto" }}>
+                    { enableSearch && (
                         <IconButton
                             color="inherit"
                             onClick={() => setShowSearch((prev) => !prev)}
                         >
                             <Search />
                         </IconButton> as ReactElement
-                        )}
-                        {/* Notifications dugme */}
-                        <IconButton
-                            color="inherit"
-                            onClick={(e) => setAnchorEl(e.currentTarget)}
-                        >
-                            <Notifications />
+                    )}
+                    {/* Notifications dugme */}
+                    <IconButton
+                        color="inherit"
+                        onClick={(e) => setAnchorEl(e.currentTarget)}
+                    >
+                        <Notifications />
+                    </IconButton>
+                    <Tooltip title="Logout">
+                        <IconButton color="inherit" onClick={handleLogout}>
+                            <LogoutIcon />
                         </IconButton>
-                        <Tooltip title="Logout">
-                            <IconButton color="inherit" onClick={handleLogout}>
-                                <LogoutIcon />
-                            </IconButton>
-                        </Tooltip>
-                        <Popover
-                            open={Boolean(anchorEl)}
-                            anchorEl={anchorEl}
-                            onClose={() => setAnchorEl(null)}
-                            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                            transformOrigin={{ vertical: "top", horizontal: "right" }}
-                        >
-                            <List sx={{ minWidth: 250 }}>
-                                {settings.map((s) => (
-                                    <ListItem
-                                        key={s.notifType}
-                                        secondaryAction={
-                                            <Switch
-                                                edge="end"
-                                                checked={s.enabled}
-                                                onChange={() => handleToggle(s.notifType)}
-                                            /> as ReactElement
-                                        }
-                                    >
-                                        <ListItemText
-                                            primary={s.notifType.replaceAll("_", " ")}
-                                        />
-                                    </ListItem> as ReactElement
-                                ))}
-                            </List>
-                        </Popover>
-                    </Box>
+                    </Tooltip>
+                    <Popover
+                        open={Boolean(anchorEl)}
+                        anchorEl={anchorEl}
+                        onClose={() => setAnchorEl(null)}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                        transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    >
+                        <List sx={{ minWidth: 250 }}>
+                            {settings.map((s) => (
+                                <ListItem
+                                    key={s.notifType}
+                                    secondaryAction={
+                                        <Switch
+                                            edge="end"
+                                            checked={s.enabled}
+                                            onChange={() => handleToggle(s.notifType)}
+                                        /> as ReactElement
+                                    }
+                                >
+                                    <ListItemText
+                                        primary={s.notifType.replaceAll("_", " ")}
+                                    />
+                                </ListItem> as ReactElement
+                            ))}
+                        </List>
+                    </Popover>
+                </Box>
 
             </Toolbar>
             {enableSearch && (
