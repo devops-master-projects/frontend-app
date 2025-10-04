@@ -14,6 +14,7 @@ import GuestNavbar from "../navbar/GuestNavbar.tsx";
 import {getRole} from "../../auth/api/authApi.ts";
 import {useNavigate} from "react-router-dom";
 import type {SearchResponse} from "../api/accommodationsApi";
+import Navbar from "../navbar/Navbar.tsx";
 
 export default function AccommodationDashboard() {
     const [accommodations, setAccommodations] = useState<SearchResponse[]>([]);
@@ -65,6 +66,31 @@ export default function AccommodationDashboard() {
 
 
         {role === "GUEST" && <GuestNavbar
+            onSearch={async (filters) => {
+                try {
+                    console.log("filters: ", filters)
+                    const results = await searchAccommodations(filters);
+                    navigate("/search-results", { state: { results } }); // šaljemo rezultate
+                } catch (err) {
+                    console.error("Error while searching:", err);
+                }
+            }}
+
+            onHome={async () => {
+                try {
+                    const all = await fetchAccommodations();
+                    setAccommodations(all);
+                    setPage(1);
+                    navigate("/accommodations");
+                } catch (err) {
+                    console.error("Error while reloading all accommodations:", err);
+                }
+            }}
+            enableSearch={true}
+        />}
+
+
+        {role === "" && <Navbar
             onSearch={async (filters) => {
                 try {
                     console.log("filters: ", filters)
