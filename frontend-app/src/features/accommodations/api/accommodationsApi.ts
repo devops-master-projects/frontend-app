@@ -198,12 +198,17 @@ export async function createAccommodation(
 }
 
 export async function fetchAccommodationById(id: string): Promise<AccommodationResponseDto> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
 
     const res = await fetch(
         `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${id}`,
         {
             method: "GET",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+            },
         }
     );
 
@@ -214,7 +219,6 @@ export async function fetchAccommodationById(id: string): Promise<AccommodationR
 
     return res.json();
 }
-
 
 export async function updateAccommodation(
     id: string,

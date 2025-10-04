@@ -1,11 +1,27 @@
-import { AppBar, Toolbar, Button, Box, IconButton, Collapse, TextField } from "@mui/material";
+import {
+    AppBar,
+    Toolbar,
+    Button,
+    Box,
+    IconButton,
+    Collapse,
+    TextField,
+    ListItemText,
+    Switch,
+    ListItem, List
+} from "@mui/material";
 import {Link as RouterLink, useNavigate} from "react-router-dom";
-import { Home, Search } from "@mui/icons-material";
-import {useState} from "react";
+import { Home } from "@mui/icons-material";
+import {useEffect, useState} from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import type {ReactElement} from "react";
-
+import {
+    Popover
+} from "@mui/material";
+import { Search, Notifications } from "@mui/icons-material";
+import {fetchNotificationSettings, updateNotificationSetting} from "../../notifications/api/notificationsApi.ts";
+import type {NotificationSettingsDto} from "../../notifications/api/notificationsApi.ts";
 type HostNavbarProps = {
     onSearch?: (filters: {
         location: string;
@@ -23,6 +39,11 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
     const [guests, setGuests] = useState(1);
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [settings, setSettings] = useState<NotificationSettingsDto[]>([]);
+
+    const navigate = useNavigate();
+
     const formatDate = (date: Date | null) => {
         if (!date) return undefined;
         return date.toLocaleDateString("sv-SE"); // yyyy-MM-dd format
@@ -38,16 +59,40 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
             });
         }
     };
-    const navigate = useNavigate();
-
 
     const handleHomeClick = () => {
         if (onHome) {
-            onHome(); // koristi custom logiku iz AccommodationDashboard
+            onHome();
         } else {
-            navigate("/accommodations"); // fallback za sve druge stranice
+            navigate("/accommodations");
         }
     };
+
+    const handleToggle = (notifType: string) => {
+        setSettings((prev) =>
+            prev.map((s) =>
+                s.notifType === notifType ? { ...s, enabled: !s.enabled } : s
+            )
+        );
+
+        const updated = settings.find((s) => s.notifType === notifType);
+        if (updated) {
+            updateNotificationSetting(notifType, !updated.enabled)
+                .then((newSetting) => {
+                    console.log("Updated setting:", newSetting);
+                })
+                .catch((err) => {
+                    console.error("Failed to update setting", err);
+                });
+        }
+    };
+
+
+    useEffect(() => {
+        fetchNotificationSettings()
+            .then(setSettings)
+            .catch((err) => console.error("Failed to load notification settings", err));
+    }, []);
 
     return (
         <AppBar
@@ -87,19 +132,63 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                     >
                         New Amenity
                     </Button>
+                    <Button
+                        component={RouterLink}
+                        to="/notifications"
+                        color="inherit"
+                        sx={{ fontWeight: 600 }}
+                    >
+                        Notifications
+                    </Button>
                 </Box>
 
                 {/* Desna strana */}
-                { enableSearch && (
-                <Box sx={{ marginLeft: "auto" }}>
-                    <IconButton
-                        color="inherit"
-                        onClick={() => setShowSearch((prev) => !prev)}
-                    >
-                        <Search />
-                    </IconButton>
-                </Box> )as ReactElement
-                }
+                {enableSearch && (
+                    <Box sx={{ marginLeft: "auto", display: "flex", gap: 1 }}>
+                        {/* Search dugme */}
+                        <IconButton
+                            color="inherit"
+                            onClick={() => setShowSearch((prev) => !prev)}
+                        >
+                            <Search />
+                        </IconButton>
+
+                        {/* Notifications dugme */}
+                        <IconButton
+                            color="inherit"
+                            onClick={(e) => setAnchorEl(e.currentTarget)}
+                        >
+                            <Notifications />
+                        </IconButton>
+
+                        <Popover
+                            open={Boolean(anchorEl)}
+                            anchorEl={anchorEl}
+                            onClose={() => setAnchorEl(null)}
+                            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                            transformOrigin={{ vertical: "top", horizontal: "right" }}
+                        >
+                            <List sx={{ minWidth: 250 }}>
+                                {settings.map((s) => (
+                                    <ListItem
+                                        key={s.notifType}
+                                        secondaryAction={
+                                            <Switch
+                                                edge="end"
+                                                checked={s.enabled}
+                                                onChange={() => handleToggle(s.notifType)}
+                                            /> as ReactElement
+                                        }
+                                    >
+                                        <ListItemText
+                                            primary={s.notifType.replaceAll("_", " ")}
+                                        />
+                                    </ListItem> as ReactElement
+                                ))}
+                            </List>
+                        </Popover>
+                    </Box> as ReactElement
+                )}
             </Toolbar>
 
             {/* Search forma koja se pojavi ispod */}

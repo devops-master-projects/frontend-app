@@ -12,8 +12,8 @@ import HostAccommodationRequestsPage from "../features/booking/pages/HostAccommo
 import Login from "../features/auth/pages/Login.tsx";
 import SearchResultsPage from "../features/accommodations/pages/SearchResultsPage.tsx";
 import Profile from "../features/auth/pages/Profile.tsx";
-
-
+import NotificationDetailsPage from "../features/notifications/pages/NotificationDetailsPage.tsx";
+import NotificationsPage from "../features/notifications/pages/NotificationsPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -68,6 +68,15 @@ const router = createBrowserRouter([
     path: "/search-results",
     element: <SearchResultsPage />,
   },
+  {
+    path: "/notifications",
+    element: <NotificationsPage />,
+  },
+  {
+    path: "/notifications/:id",
+    element: <NotificationDetailsPage />,
+  },
+
 
 ]);
 

@@ -34,6 +34,7 @@ export type ChangeCredentialsRequest = {
 };
 
 interface JwtPayload {
+  sub? : string;
   email?: string;
   preferred_username?: string;
   given_name?: string;
@@ -101,6 +102,8 @@ export async function registerUser(body: RegisterRequest): Promise<string> {
 export function getRole(): string {
   return getUserInfoFromToken()?.role?.toUpperCase() || "";
 }
+
+
 export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
   clearTokens();
   const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
@@ -115,6 +118,7 @@ export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
   const data: LoginResponse = await res.json();
   setTokens(data);
   console.log(getUserInfoFromToken());
+
   return data;
 }
 
@@ -136,6 +140,7 @@ export function parseJwt(token: string): unknown {
 }
 
 export interface UserInfo {
+  id?: string;
   email?: string;
   firstName?: string;
   lastName?: string;
@@ -168,6 +173,7 @@ export function getUserInfoFromToken(): UserInfo | null {
 
   const foundRole = allRoles.find(r => r === "guest" || r === "host");
   const userInfo: UserInfo = {
+    id: payload.sub,
     email: payload.email || payload.preferred_username,
     firstName: payload.given_name,
     lastName: payload.family_name,
