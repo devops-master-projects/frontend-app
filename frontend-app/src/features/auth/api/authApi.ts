@@ -104,6 +104,7 @@ export function getRole(): string {
 }
 
 
+
 export function getUserId(): string {
   return getUserInfoFromToken()?.id || ""
 }
@@ -152,6 +153,7 @@ export interface UserInfo {
   lastName?: string;
   role?: "guest" | "host";
 }
+
 
 export function getUserInfoFromToken(): UserInfo | null {
   const token = localStorage.getItem("access_token");
