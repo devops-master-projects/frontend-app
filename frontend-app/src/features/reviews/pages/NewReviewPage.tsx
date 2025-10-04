@@ -60,7 +60,7 @@ export default function NewReviewPage() {
             }
 
             navigate(`/accommodations/${id}`);
-        } catch (_: unknown) {
+        } catch {
             setError("Failed to submit review");
         } finally {
             setLoading(false);

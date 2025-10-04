@@ -56,11 +56,12 @@ export default function NewHostReviewPage() {
             }
 
             navigate(`/hosts/${id}`);
-        } catch (_: unknown) {
+        } catch {
             setError("Failed to submit review");
         } finally {
             setLoading(false);
         }
+
     };
 
     return (
