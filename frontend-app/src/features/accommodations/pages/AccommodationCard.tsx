@@ -13,15 +13,13 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import SwipeableViews from 'react-swipeable-views';
 
 import { Link } from "react-router-dom";
-import {getRole, getUserId} from "../../auth/api/authApi.ts";
 import type { SearchResponse} from "../api/accommodationsApi.ts";
 type Props = { accommodation: SearchResponse };
 
 export default function AccommodationCard({ accommodation }: Props) {
     const [activeStep, setActiveStep] = useState(0);
     const maxSteps = accommodation.photos?.length ?? 0;
-    const role : string = getRole();
-    const userIdFromToken: string = getUserId();
+
 
     return (
         <Card sx={{ maxWidth: 350, minHeight: 500, maxHeight: 500}}>

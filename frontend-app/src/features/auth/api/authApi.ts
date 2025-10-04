@@ -191,6 +191,7 @@ export function getUserInfoFromToken(): UserInfo | null {
   };
 }
 
+
 export async function refreshToken(): Promise<LoginResponse> {
   const refresh_token = localStorage.getItem('refresh_token');
   if (!refresh_token) throw new Error('No refresh token');
