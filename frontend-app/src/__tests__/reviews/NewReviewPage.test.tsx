@@ -41,20 +41,14 @@ vi.mock('react-router-dom', () => ({
   useParams: () => params,
 }))
 
-// API mocks
-const createAccommodationReview = vi.fn()
-const getReviewById = vi.fn()
-const updateReview = vi.fn()
-vi.mock('../../features/reviews/api/reviewApi', () => ({
-  createAccommodationReview,
-  getReviewById,
-  updateReview,
+// API mocks (use hoisted to avoid initialization ordering issues)
+const apiMocks = vi.hoisted(() => ({
+  createAccommodationReview: vi.fn(),
+  getReviewById: vi.fn(),
+  updateReview: vi.fn(),
 }))
-vi.mock('../../features/reviews/api/reviewApi.ts', () => ({
-  createAccommodationReview,
-  getReviewById,
-  updateReview,
-}))
+vi.mock('../../features/reviews/api/reviewApi', () => apiMocks)
+vi.mock('../../features/reviews/api/reviewApi.ts', () => apiMocks)
 
 import NewReviewPage from '../../features/reviews/pages/NewReviewPage'
 
@@ -69,12 +63,12 @@ describe('NewReviewPage', () => {
     render(<NewReviewPage />)
     await userEvent.click(screen.getByRole('button', { name: /submit/i }))
     expect(await screen.findByText(/please provide a rating/i)).toBeInTheDocument()
-    expect(createAccommodationReview).not.toHaveBeenCalled()
-    expect(updateReview).not.toHaveBeenCalled()
+    expect(apiMocks.createAccommodationReview).not.toHaveBeenCalled()
+    expect(apiMocks.updateReview).not.toHaveBeenCalled()
   })
 
   it('creates a new review and navigates on success', async () => {
-    createAccommodationReview.mockResolvedValueOnce({ id: 'new' })
+  apiMocks.createAccommodationReview.mockResolvedValueOnce({ id: 'new' })
 
     render(<NewReviewPage />)
 
@@ -86,15 +80,15 @@ describe('NewReviewPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /submit/i }))
 
     await waitFor(() => {
-      expect(createAccommodationReview).toHaveBeenCalledWith({ accommodationId: 'acc1', rating: 4, comment: 'Nice stay' })
+      expect(apiMocks.createAccommodationReview).toHaveBeenCalledWith({ accommodationId: 'acc1', rating: 4, comment: 'Nice stay' })
     })
     expect(navigateMock).toHaveBeenCalledWith('/accommodations/acc1')
   })
 
   it('prefills fields and updates review in edit mode', async () => {
     params = { id: 'acc1', reviewId: 'rev1' }
-    getReviewById.mockResolvedValueOnce({ id: 'rev1', rating: 3, comment: 'Old' })
-    updateReview.mockResolvedValueOnce({ id: 'rev1', rating: 5, comment: 'New' })
+  apiMocks.getReviewById.mockResolvedValueOnce({ id: 'rev1', rating: 3, comment: 'Old' })
+  apiMocks.updateReview.mockResolvedValueOnce({ id: 'rev1', rating: 5, comment: 'New' })
 
     render(<NewReviewPage />)
 
@@ -111,13 +105,13 @@ describe('NewReviewPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /update/i }))
 
     await waitFor(() => {
-      expect(updateReview).toHaveBeenCalledWith('rev1', { accommodationId: 'acc1', rating: 5, comment: 'New' })
+      expect(apiMocks.updateReview).toHaveBeenCalledWith('rev1', { accommodationId: 'acc1', rating: 5, comment: 'New' })
     })
     expect(navigateMock).toHaveBeenCalledWith('/accommodations/acc1')
   })
 
   it('shows error when API call fails', async () => {
-    createAccommodationReview.mockRejectedValueOnce(new Error('Oops'))
+  apiMocks.createAccommodationReview.mockRejectedValueOnce(new Error('Oops'))
 
     render(<NewReviewPage />)
     await userEvent.click(screen.getByRole('button', { name: /rate-4/i }))

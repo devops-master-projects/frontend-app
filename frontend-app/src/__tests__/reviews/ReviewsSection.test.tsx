@@ -61,11 +61,13 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => navigateMock,
 }))
 
-// API mocks
-const getAccommodationReviews = vi.fn()
-const deleteReview = vi.fn()
-vi.mock('../../features/reviews/api/reviewApi', () => ({ getAccommodationReviews, deleteReview }))
-vi.mock('../../features/reviews/api/reviewApi.ts', () => ({ getAccommodationReviews, deleteReview }))
+// API mocks (hoisted)
+const apiMocks = vi.hoisted(() => ({
+  getAccommodationReviews: vi.fn(),
+  deleteReview: vi.fn(),
+}))
+vi.mock('../../features/reviews/api/reviewApi', () => apiMocks)
+vi.mock('../../features/reviews/api/reviewApi.ts', () => apiMocks)
 
 // Auth mock
 vi.mock('../../features/auth/api/authApi', () => ({
@@ -84,7 +86,7 @@ describe('ReviewsSection', () => {
   })
 
   it('renders average rating and reviews, and shows edit/delete only for own review', async () => {
-    getAccommodationReviews.mockResolvedValueOnce({
+  apiMocks.getAccommodationReviews.mockResolvedValueOnce({
       content: [
         { id: 'r1', guestId: 'me', guestFirstName: 'Me', guestLastName: 'User', rating: 4, comment: 'Mine', createdAt: '2025-01-01T00:00:00Z' },
         { id: 'r2', guestId: 'other', guestFirstName: 'Other', guestLastName: 'User', rating: 3, comment: 'Other', createdAt: '2025-01-02T00:00:00Z' },
@@ -109,7 +111,7 @@ describe('ReviewsSection', () => {
   })
 
   it('navigates to edit page when Edit icon is clicked for own review', async () => {
-    getAccommodationReviews.mockResolvedValueOnce({
+  apiMocks.getAccommodationReviews.mockResolvedValueOnce({
       content: [
         { id: 'r1', guestId: 'me', guestFirstName: 'Me', guestLastName: 'User', rating: 4, comment: 'Mine', createdAt: '2025-01-01T00:00:00Z' },
       ],
@@ -127,7 +129,7 @@ describe('ReviewsSection', () => {
 
   it('opens confirm dialog and deletes review, then refreshes list and closes dialog', async () => {
     // First fetch: two reviews
-    getAccommodationReviews.mockResolvedValueOnce({
+  apiMocks.getAccommodationReviews.mockResolvedValueOnce({
       content: [
         { id: 'r1', guestId: 'me', guestFirstName: 'Me', guestLastName: 'User', rating: 4, comment: 'Mine', createdAt: '2025-01-01T00:00:00Z' },
         { id: 'r2', guestId: 'other', guestFirstName: 'Other', guestLastName: 'User', rating: 3, comment: 'Other', createdAt: '2025-01-02T00:00:00Z' },
@@ -136,14 +138,14 @@ describe('ReviewsSection', () => {
       averageRating: 3.5,
     })
     // After delete: only other remains
-    getAccommodationReviews.mockResolvedValueOnce({
+  apiMocks.getAccommodationReviews.mockResolvedValueOnce({
       content: [
         { id: 'r2', guestId: 'other', guestFirstName: 'Other', guestLastName: 'User', rating: 3, comment: 'Other', createdAt: '2025-01-02T00:00:00Z' },
       ],
       totalPages: 1,
       averageRating: 3,
     })
-    deleteReview.mockResolvedValueOnce(undefined)
+  apiMocks.deleteReview.mockResolvedValueOnce(undefined)
 
     render(<ReviewsSection accommodationId="acc1" />)
     await screen.findByText(/Average Rating/i)
@@ -157,7 +159,7 @@ describe('ReviewsSection', () => {
     // Confirm delete
     await userEvent.click(screen.getByRole('button', { name: /^Delete$/i }))
 
-    await waitFor(() => expect(deleteReview).toHaveBeenCalledWith('r1'))
+  await waitFor(() => expect(apiMocks.deleteReview).toHaveBeenCalledWith('r1'))
     // List refreshed: only "Other" remains, and average updated
     await screen.findByText('3.0 / 5')
     expect(screen.getByText('Other')).toBeInTheDocument()
@@ -169,7 +171,7 @@ describe('ReviewsSection', () => {
 
   it('changes page via Pagination and fetches new page', async () => {
     // Page 1
-    getAccommodationReviews.mockResolvedValueOnce({
+    apiMocks.getAccommodationReviews.mockResolvedValueOnce({
       content: [
         { id: 'r1', guestId: 'me', guestFirstName: 'Me', guestLastName: 'User', rating: 4, comment: 'Page1', createdAt: '2025-01-01T00:00:00Z' },
       ],
@@ -177,7 +179,7 @@ describe('ReviewsSection', () => {
       averageRating: 4,
     })
     // Page 2
-    getAccommodationReviews.mockResolvedValueOnce({
+    apiMocks.getAccommodationReviews.mockResolvedValueOnce({
       content: [
         { id: 'r2', guestId: 'other', guestFirstName: 'Other', guestLastName: 'User', rating: 3, comment: 'Page2', createdAt: '2025-01-02T00:00:00Z' },
       ],
