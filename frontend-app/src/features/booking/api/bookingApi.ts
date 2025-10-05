@@ -318,3 +318,39 @@ export async function cancelReservation(requestId: string): Promise<void> {
     }
 }
 
+export async function canGuestRateAccommodation(accommodationId: string): Promise<boolean> {
+    const token = getAccessToken();
+
+    const res = await fetch(`${BASE_URL}/api/booking/accommodations/${accommodationId}/can-rate`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `HTTP ${res.status}`);
+    }
+
+    return res.json(); // boolean
+}
+
+export async function canGuestRateHost(hostId: string): Promise<boolean> {
+    const token = getAccessToken();
+
+    const res = await fetch(
+        `${BASE_URL}/api/booking/host/${hostId}/can-rate`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+    if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `HTTP ${res.status}`);
+    }
+
+    return res.json();
+}

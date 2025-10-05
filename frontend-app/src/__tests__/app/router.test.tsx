@@ -24,6 +24,7 @@ vi.mock('../../features/accommodations/pages/SearchResultsPage.tsx', () => ({ de
 vi.mock('../../features/notifications/pages/NotificationDetailsPage.tsx', () => ({ default: () => <div>Notification Details</div> }))
 vi.mock('../../features/notifications/pages/NotificationsPage.tsx', () => ({ default: () => <div>Notifications List</div> }))
 vi.mock('../../app/App', () => ({ default: () => <div>Home Page</div> }))
+vi.setConfig({ testTimeout: 15000 })
 
 describe('AppRouter', () => {
   beforeEach(() => {

@@ -1,8 +1,9 @@
 import type {AmenityResponseDto} from "./amenitiesApi.ts";
-import {getAccessToken, getTokenType} from "../../auth/api/authApi.ts";
+import { getAccessToken, getTokenType} from "../../auth/api/authApi.ts";
 
 export type AccommodationResponseDto = {
     id: string;
+    hostId?: string;
     name: string;
     minGuests: number;
     maxGuests: number;
@@ -22,7 +23,6 @@ export type LocationDto = {
 };
 
 export type AccommodationRequestDto = {
-    hostId?: string;
     name: string;
     location: LocationDto;
     minGuests: number;

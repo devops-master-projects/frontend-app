@@ -28,7 +28,6 @@ export default function NewAccommodationPage() {
     const theme = useTheme();
 
     const [form, setForm] = useState<AccommodationRequestDto>({
-        hostId: "9e1f97cc-73d5-44ba-a4d1-7ad0c1373d39", // TODO
         name: "",
         location: { country: "", city: "", address: "", postalCode: "" },
         minGuests: 1,
