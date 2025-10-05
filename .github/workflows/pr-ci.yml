@@ -136,7 +136,11 @@ jobs:
             gcr.io/kaniko-project/executor:latest \
             --context=/workspace \
             --dockerfile=Dockerfile \
+            --build-arg VITE_API_URL=/api/identity \
+            --build-arg VITE_ACCOMMODATION_API_URL=/api/accommodations \
+            --build-arg VITE_BOOKING_API_URL=/api/bookings \
+            --build-arg VITE_SEARCH_API_URL=/api/search \
+            --build-arg VITE_NOTIFICATION_API_URL=/api/notifications \
             $DESTINATIONS \
             --cache=true \
-            --cache-repo=${{ steps.img.outputs.name }}-cache \
-            --verbosity=debug
+            --cache-repo=${{ steps.img.outputs.name }}-cache
