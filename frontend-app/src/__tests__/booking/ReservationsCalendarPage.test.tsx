@@ -53,7 +53,7 @@ describe('ReservationsCalendarPage', () => {
     vi.mocked(bookingApi.getReservationRequestsByGuest).mockResolvedValue([
       { id: 'req1', guestId: 'g', accommodationId: 'abc', startDate: '2099-01-10', endDate: '2099-01-11', status: 'PENDING', guestCount: 2, createdAt: '2099-01-01T00:00:00Z' },
     ] as ReservationRequestResponseDto[])
-    vi.mocked(accApi.fetchAccommodationById).mockResolvedValue({ id: 'id', name: 'Acc', minGuests: 1, maxGuests: 4, description: '', urlPhotos: [], location: { country: '', city: '', address: '', postalCode: '' }, autoConfirm: false, pricingMode: 'FIXED', amenities: [] } as AccommodationResponseDto)
+    vi.mocked(accApi.fetchAccommodationById).mockResolvedValue({ id: 'id', name: 'Acc', minGuests: 1, maxGuests: 4, description: '', urlPhotos: [], location: { country: '', city: '', address: '', postalCode: '' }, autoConfirm: false, pricingMode: 'PER_PERSON', amenities: [] } as AccommodationResponseDto)
     vi.mocked(bookingApi.createReservationRequest).mockResolvedValue({ id: 'newReq', guestId: 'g', accommodationId: 'abc', startDate: '2099-01-02', endDate: '2099-01-03', status: 'PENDING', guestCount: 1, createdAt: '2099-01-01T00:00:00Z' } as ReservationRequestResponseDto)
     vi.mocked(bookingApi.updateReservationRequest).mockResolvedValue({ id: 'req1', guestId: 'g', accommodationId: 'abc', startDate: '2099-01-10', endDate: '2099-01-11', status: 'PENDING', guestCount: 3, createdAt: '2099-01-01T00:00:00Z' } as ReservationRequestResponseDto)
     vi.mocked(bookingApi.deleteReservationRequest).mockResolvedValue(undefined)

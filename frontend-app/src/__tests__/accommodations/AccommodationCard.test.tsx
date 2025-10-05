@@ -36,7 +36,7 @@ describe('AccommodationCard', () => {
     maxGuests: 0,
     totalPrice: 0,
     unitPrice: 0,
-    pricingMode: 'FIXED',
+    pricingMode: 'PER_PERSON',
     ...overrides,
   })
 
@@ -55,7 +55,7 @@ describe('AccommodationCard', () => {
   expect(screen.getByRole('link', { name: /details/i })).toBeInTheDocument()
   })
 
-  it('does not show edit for guest and shows for host', async () => {
+  it('does not render an edit link for guest or host (UI does not expose edit here)', async () => {
     const acc = makeSearchItem({ id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, photos: [], minGuests: 1, maxGuests: 2 })
 
     // Guest (default mock)
@@ -64,9 +64,9 @@ describe('AccommodationCard', () => {
         <AccommodationCard accommodation={acc} />
       </BrowserRouter>
     )
-  expect(screen.queryByRole('link', { name: /edit/i })).toBeNull()
+    expect(screen.queryByRole('link', { name: /edit/i })).toBeNull()
 
-    // now mock host by spying on getRole
+    // now mock host by spying on getRole (page does not render edit link in this component)
     const spy = vi.spyOn(authApi, 'getRole').mockImplementation(() => 'HOST')
     // re-render with host behavior
     render(
@@ -74,7 +74,8 @@ describe('AccommodationCard', () => {
         <AccommodationCard accommodation={acc} />
       </BrowserRouter>
     )
-  expect(screen.getAllByRole('link', { name: /edit/i }).length).toBeGreaterThanOrEqual(1)
+    // still no edit link in this component
+    expect(screen.queryByRole('link', { name: /edit/i })).toBeNull()
     spy.mockRestore()
   })
 

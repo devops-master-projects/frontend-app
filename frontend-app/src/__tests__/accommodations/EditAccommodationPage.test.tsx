@@ -27,7 +27,7 @@ const existing: AccommodationResponseDto = {
   maxGuests: 3,
   description: 'Desc',
   autoConfirm: false,
-  pricingMode: 'FIXED',
+  pricingMode: 'PER_PERSON',
   urlPhotos: ['old.jpg'],
   amenities: [{ id: 'am1', name: 'Wifi', description: '' }],
 }

@@ -14,6 +14,11 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
+vi.mock('../../features/accommodations/navbar/Navbar.tsx', () => ({
+  default: () => <div data-testid="mock-navbar" />,
+}));
+
+
 vi.mock('../../features/auth/api/authApi', () => ({
   loginUser: vi.fn(),
 }))

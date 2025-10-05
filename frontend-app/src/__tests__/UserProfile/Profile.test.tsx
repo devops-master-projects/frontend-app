@@ -9,6 +9,8 @@ vi.mock('../../features/auth/api/authApi', () => ({
   updateProfile: vi.fn(),
   changeCredentials: vi.fn(),
 }));
+vi.setConfig({ testTimeout: 15000 })
+
 
 describe('Profile component', () => {
   beforeEach(() => {

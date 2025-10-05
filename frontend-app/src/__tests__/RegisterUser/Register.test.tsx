@@ -10,6 +10,10 @@ import { registerUser } from '../../features/auth/api/authApi'
 vi.mock('../../features/auth/api/authApi', () => ({
   registerUser: vi.fn(),
 }))
+vi.mock('../../features/accommodations/navbar/Navbar.tsx', () => ({
+  default: () => <div data-testid="mock-navbar" />,
+}));
+
 
 const mockedRegisterUser = registerUser as MockedFunction<typeof registerUser>
 
