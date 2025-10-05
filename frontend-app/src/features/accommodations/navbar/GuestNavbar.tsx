@@ -121,6 +121,7 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
                     <IconButton
                         color="inherit"
                         onClick={handleHomeClick}
+                        data-testid="guest-navbar-home"
                         sx={{ fontWeight: 600 }}
                     >
                         <Home />
@@ -154,6 +155,7 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
                         <IconButton
                             color="inherit"
                             onClick={() => setShowSearch((prev) => !prev)}
+                            data-testid="guest-navbar-toggle-search"
                         >
                             <Search />
                         </IconButton> as ReactElement
@@ -235,7 +237,7 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
                                 onChange={setEndDate}
                                 slotProps={{ textField: { sx: { minWidth: 160 } } }}
                             />
-                            <Button variant="contained" onClick={handleSearch}>
+                            <Button variant="contained" onClick={handleSearch} data-testid="guest-navbar-submit-search">
                                 Search
                             </Button>
                         </Box>
