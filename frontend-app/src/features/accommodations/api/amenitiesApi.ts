@@ -8,7 +8,7 @@ export interface AmenityResponseDto {
     name: string;
     description: string;
 }
-import { getAccessToken, getTokenType } from "../../auth/api/authApi.ts";
+import {getAccessToken, getTokenType} from "../../auth/api/authApi.ts";
 
 export async function createAmenity(
     request: AmenityRequestDto
@@ -36,10 +36,17 @@ export async function createAmenity(
     return res.json();
 }
 
+
 export async function fetchAmenities(): Promise<AmenityResponseDto[]> {
+    const token = getAccessToken();
+    const tokenType = getTokenType();
+
     const res = await fetch(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/amenities`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `${tokenType} ${token}` } : {}),
+        },
     });
 
     if (!res.ok) {

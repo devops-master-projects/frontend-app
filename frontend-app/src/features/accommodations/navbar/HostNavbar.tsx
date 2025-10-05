@@ -1,3 +1,7 @@
+
+
+
+
 import {
     AppBar,
     Toolbar,
@@ -8,7 +12,7 @@ import {
     TextField,
     ListItemText,
     Switch,
-    ListItem, List
+    ListItem, List, Tooltip
 } from "@mui/material";
 import {Link as RouterLink, useNavigate} from "react-router-dom";
 import { Home } from "@mui/icons-material";
@@ -32,7 +36,8 @@ type HostNavbarProps = {
     onHome?: () => void;
     enableSearch?: boolean;
 };
-
+import LogoutIcon from "@mui/icons-material/Logout";
+import {logout} from "../../auth/api/authApi.ts";
 export default function HostNavbar({ onSearch, onHome, enableSearch = false }: HostNavbarProps) {
     const [showSearch, setShowSearch] = useState(false);
     const [location, setLocation] = useState("");
@@ -94,6 +99,12 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
             .catch((err) => console.error("Failed to load notification settings", err));
     }, []);
 
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
+
+
     return (
         <AppBar
             position="static"
@@ -143,97 +154,103 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                 </Box>
 
                 {/* Desna strana */}
-                {enableSearch && (
-                    <Box sx={{ marginLeft: "auto", display: "flex", gap: 1 }}>
-                        {/* Search dugme */}
+
+                <Box sx={{ marginLeft: "auto", display: "flex", gap: 1 }}>
+                    {enableSearch && (
+
                         <IconButton
                             color="inherit"
                             onClick={() => setShowSearch((prev) => !prev)}
                         >
                             <Search />
-                        </IconButton>
+                        </IconButton>  as ReactElement
+                    )}
+                    {/* Notifications dugme */}
+                    <IconButton
+                        color="inherit"
+                        onClick={(e) => setAnchorEl(e.currentTarget)}
+                    >
+                        <Notifications />
+                    </IconButton>
 
-                        {/* Notifications dugme */}
-                        <IconButton
-                            color="inherit"
-                            onClick={(e) => setAnchorEl(e.currentTarget)}
-                        >
-                            <Notifications />
+                    <Tooltip title="Logout">
+                        <IconButton color="inherit" onClick={handleLogout}>
+                            <LogoutIcon />
                         </IconButton>
+                    </Tooltip>
+                    <Popover
+                        open={Boolean(anchorEl)}
+                        anchorEl={anchorEl}
+                        onClose={() => setAnchorEl(null)}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                        transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    >
+                        <List sx={{ minWidth: 250 }}>
+                            {settings.map((s) => (
+                                <ListItem
+                                    key={s.notifType}
+                                    secondaryAction={
+                                        <Switch
+                                            edge="end"
+                                            checked={s.enabled}
+                                            onChange={() => handleToggle(s.notifType)}
+                                        /> as ReactElement
+                                    }
+                                >
+                                    <ListItemText
+                                        primary={s.notifType.replaceAll("_", " ")}
+                                    />
+                                </ListItem> as ReactElement
+                            ))}
+                        </List>
+                    </Popover>
+                </Box>
 
-                        <Popover
-                            open={Boolean(anchorEl)}
-                            anchorEl={anchorEl}
-                            onClose={() => setAnchorEl(null)}
-                            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                            transformOrigin={{ vertical: "top", horizontal: "right" }}
-                        >
-                            <List sx={{ minWidth: 250 }}>
-                                {settings.map((s) => (
-                                    <ListItem
-                                        key={s.notifType}
-                                        secondaryAction={
-                                            <Switch
-                                                edge="end"
-                                                checked={s.enabled}
-                                                onChange={() => handleToggle(s.notifType)}
-                                            /> as ReactElement
-                                        }
-                                    >
-                                        <ListItemText
-                                            primary={s.notifType.replaceAll("_", " ")}
-                                        />
-                                    </ListItem> as ReactElement
-                                ))}
-                            </List>
-                        </Popover>
-                    </Box> as ReactElement
-                )}
             </Toolbar>
 
             {/* Search forma koja se pojavi ispod */}
             {enableSearch && (
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Collapse in={showSearch} timeout="auto" unmountOnExit>
-                    <Box
-                        sx={{
-                            p: 2,
-                            backgroundColor: "background.default",
-                            display: "flex",
-                            gap: 2,
-                            alignItems: "center",
-                        }}
-                    >
-                        <TextField
-                            label="Location"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                        />
-                        <TextField
-                            type="number"
-                            label="Guests"
-                            value={guests}
-                            onChange={(e) => setGuests(Number(e.target.value))}
-                            sx={{ width: 120 }}
-                        />
-                        <DatePicker
-                            label="Start Date"
-                            value={startDate}
-                            onChange={setStartDate}
-                            slotProps={{ textField: { sx: { minWidth: 160 } } }}
-                        />
-                        <DatePicker
-                            label="End Date"
-                            value={endDate}
-                            onChange={setEndDate}
-                            slotProps={{ textField: { sx: { minWidth: 160 } } }}
-                        />
-                        <Button variant="contained" onClick={handleSearch}>
-                            Search
-                        </Button>
-                    </Box>
-                </Collapse>
-            </LocalizationProvider>) as ReactElement
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <Collapse in={showSearch} timeout="auto" unmountOnExit>
+                        <Box
+                            sx={{
+                                p: 2,
+                                backgroundColor: "background.default",
+                                display: "flex",
+                                gap: 2,
+                                alignItems: "center",
+                            }}
+                        >
+                            <TextField
+                                label="Location"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                            />
+                            <TextField
+                                type="number"
+                                label="Guests"
+                                value={guests}
+                                onChange={(e) => setGuests(Number(e.target.value))}
+                                sx={{ width: 120 }}
+                            />
+                            <DatePicker
+                                label="Start Date"
+                                value={startDate}
+                                onChange={setStartDate}
+                                slotProps={{ textField: { sx: { minWidth: 160 } } }}
+                            />
+                            <DatePicker
+                                label="End Date"
+                                value={endDate}
+                                onChange={setEndDate}
+                                slotProps={{ textField: { sx: { minWidth: 160 } } }}
+                            />
+                            <Button variant="contained" onClick={handleSearch}>
+                                Search
+                            </Button>
+                        </Box>
+                    </Collapse>
+                </LocalizationProvider>) as ReactElement
             }
         </AppBar>
     );
