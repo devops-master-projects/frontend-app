@@ -2,6 +2,8 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi, type Mock } from "vitest"
 import { MemoryRouter } from "react-router-dom"
+import * as notificationsApi from "../../features/notifications/api/notificationsApi.ts"
+import HostNavbar from "../../features/accommodations/navbar/HostNavbar"
 
 vi.mock("@mui/icons-material", () => ({
   Home: () => null,
@@ -25,7 +27,7 @@ vi.mock("@mui/x-date-pickers/AdapterDateFns", () => ({
   default: class {},
 }))
 
-// 🔧 React Router
+
 const mockedNavigate = vi.fn()
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom")
@@ -35,14 +37,11 @@ vi.mock("react-router-dom", async () => {
   }
 })
 
-// 🔧 Notifications API
 vi.mock("../../features/notifications/api/notificationsApi.ts", () => ({
   fetchNotificationSettings: vi.fn(),
   updateNotificationSetting: vi.fn(),
 }))
 
-import * as notificationsApi from "../../features/notifications/api/notificationsApi.ts"
-import HostNavbar from "../../features/accommodations/navbar/HostNavbar"
 
 describe("HostNavbar", () => {
   beforeEach(() => {
@@ -67,10 +66,10 @@ describe("HostNavbar", () => {
     ;(notificationsApi.fetchNotificationSettings as unknown as Mock).mockResolvedValue(defaultSettings)
 
     setup({ enableSearch: true })
-    expect(screen.getByTestId("host-navbar-home")).toBeInTheDocument()
-  expect(screen.getByRole("link", { name: /new accommodation/i })).toBeInTheDocument()
-  expect(screen.getByRole("link", { name: /new amenity/i })).toBeInTheDocument()
-  expect(screen.getByRole("link", { name: /notifications/i })).toBeInTheDocument()
+    expect(await screen.findByTestId("host-navbar-home")).toBeInTheDocument()
+    expect(await screen.findByRole("link", { name: /new accommodation/i })).toBeInTheDocument()
+    expect(await screen.findByRole("link", { name: /new amenity/i })).toBeInTheDocument()
+    expect(await screen.findByRole("link", { name: /notifications/i })).toBeInTheDocument()
   })
 
   it("calls onHome if provided", async () => {

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
+import userEvent from '@testing-library/user-event'
 
 // Mock heavy external libs to avoid many file opens during test runs
 vi.mock('@mui/icons-material', () => ({
@@ -58,5 +59,35 @@ describe('AccommodationCard', () => {
     )
   expect(screen.getAllByRole('link', { name: /edit/i }).length).toBeGreaterThanOrEqual(1)
     spy.mockRestore()
+  })
+
+  it('handles carousel next/back and disables at ends', async () => {
+    const acc = {
+      id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, description: 'Nice', photos: ['p1.jpg', 'p2.jpg'], amenities: [], minGuests: 1, maxGuests: 2
+    }
+
+    // Host role to also render EDIT button (exercise branch)
+    vi.spyOn(authApi, 'getRole').mockImplementation(() => 'HOST')
+
+    render(
+      <BrowserRouter>
+        <AccommodationCard accommodation={acc as any} />
+      </BrowserRouter>
+    )
+
+    const user = userEvent.setup()
+    const nextBtn = screen.getByRole('button', { name: /next/i })
+    const backBtn = screen.getByRole('button', { name: /back/i })
+
+    expect(backBtn).toBeDisabled()
+    expect(nextBtn).not.toBeDisabled()
+
+    await user.click(nextBtn)
+    // At last step, next should become disabled and back enabled
+    expect(nextBtn).toBeDisabled()
+    expect(backBtn).not.toBeDisabled()
+
+    await user.click(backBtn)
+    expect(backBtn).toBeDisabled()
   })
 })

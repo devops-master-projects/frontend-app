@@ -1,15 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getProfile, updateProfile, changeCredentials } from '../../features/auth/api/authApi';
+import Profile from '../../features/auth/pages/Profile';
 
 vi.mock('../../features/auth/api/authApi', () => ({
   getProfile: vi.fn(),
   updateProfile: vi.fn(),
   changeCredentials: vi.fn(),
 }));
-
-import { getProfile, updateProfile, changeCredentials } from '../../features/auth/api/authApi';
-import Profile from '../../features/auth/pages/Profile';
 
 describe('Profile component', () => {
   beforeEach(() => {
@@ -99,9 +98,7 @@ describe('Profile component', () => {
     });
 
     render(<Profile />);
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole('tab', { name: /credentials/i }));
+  fireEvent.click(screen.getByRole('tab', { name: /credentials/i }));
 
     const credsButton = screen.getByRole('button', { name: /update credentials/i });
     const credsForm = credsButton.closest('form') as HTMLElement;
@@ -111,22 +108,22 @@ describe('Profile component', () => {
     const alert1 = await screen.findByRole('alert');
     expect(alert1).toHaveTextContent(/current password is required/i);
 
-    await user.type(withinForm.getByLabelText(/current password/i, { selector: 'input' }), 'oldpass');
+  fireEvent.change(withinForm.getByLabelText(/current password/i, { selector: 'input' }), { target: { value: 'oldpass' } });
     fireEvent.submit(credsForm);
     const alert2 = await screen.findByRole('alert');
     expect(alert2).toHaveTextContent(/new password is required/i);
 
     const [newPwdShort, confirmShort] = withinForm.getAllByLabelText(/new password/i, { selector: 'input' });
-    await user.type(newPwdShort, '1234567');
-    await user.type(confirmShort, '1234567');
+  fireEvent.change(newPwdShort, { target: { value: '1234567' } });
+  fireEvent.change(confirmShort, { target: { value: '1234567' } });
     fireEvent.submit(credsForm);
     const alert3 = await screen.findByRole('alert');
     expect(alert3).toHaveTextContent(/at least 8 characters/i);
 
-    await user.clear(newPwdShort);
-    await user.clear(confirmShort);
-    await user.type(newPwdShort, '12345678');
-    await user.type(confirmShort, '87654321');
+  fireEvent.change(newPwdShort, { target: { value: '' } });
+  fireEvent.change(confirmShort, { target: { value: '' } });
+  fireEvent.change(newPwdShort, { target: { value: '12345678' } });
+  fireEvent.change(confirmShort, { target: { value: '87654321' } });
     fireEvent.submit(credsForm);
     const alert4 = await screen.findByRole('alert');
     expect(alert4).toHaveTextContent(/confirmation does not match/i);
@@ -141,9 +138,7 @@ describe('Profile component', () => {
     vi.mocked(changeCredentials).mockResolvedValue('Credentials updated successfully!');
 
     render(<Profile />);
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole('tab', { name: /credentials/i }));
+  fireEvent.click(screen.getByRole('tab', { name: /credentials/i }));
 
     const credsButton = screen.getByRole('button', { name: /update credentials/i });
     const credsForm = credsButton.closest('form') as HTMLElement;
@@ -152,11 +147,11 @@ describe('Profile component', () => {
     const current = withinForm.getByLabelText(/current password/i, { selector: 'input' });
     const [newPwd, confirm] = withinForm.getAllByLabelText(/new password/i, { selector: 'input' });
 
-    await user.type(current, 'oldpass123');
-    await user.type(newPwd, 'newpassword');
-    await user.type(confirm, 'newpassword');
+  fireEvent.change(current, { target: { value: 'oldpass123' } });
+  fireEvent.change(newPwd, { target: { value: 'newpassword' } });
+  fireEvent.change(confirm, { target: { value: 'newpassword' } });
 
-    await user.click(credsButton);
+  fireEvent.click(credsButton);
 
     await waitFor(() => {
       expect(changeCredentials).toHaveBeenCalledWith({

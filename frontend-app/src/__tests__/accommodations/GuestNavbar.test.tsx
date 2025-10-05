@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
+import GuestNavbar from "../../features/accommodations/navbar/GuestNavbar";
 
 // Lightweight top-level mocks (must be hoisted) to avoid heavy MUI imports
 vi.mock('@mui/icons-material', () => ({
@@ -35,8 +36,6 @@ vi.mock("react-router-dom", async () => {
     useNavigate: () => mockedNavigate,
   };
 });
-
-import GuestNavbar from "../../features/accommodations/navbar/GuestNavbar";
 
 describe("GuestNavbar", () => {
   beforeEach(() => {

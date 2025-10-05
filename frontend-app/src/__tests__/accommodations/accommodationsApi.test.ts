@@ -6,7 +6,7 @@ describe('accommodationsApi', () => {
   const VITE_CLOUDINARY_UPLOAD_PRESET = 'preset'
   const VITE_CLOUDINARY_CLOUD_NAME = 'cloud'
 
-  let api: typeof import('../../../features/accommodations/api/accommodationsApi')
+  let api: typeof import('../../features/accommodations/api/accommodationsApi')
 
   beforeEach(async () => {
     vi.resetModules()
@@ -69,6 +69,27 @@ describe('accommodationsApi', () => {
   it('updateAutoConfirm throws on error', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, text: () => Promise.resolve('Oops') })
     await expect(api.updateAutoConfirm('acc-1', false)).rejects.toThrow(/Oops|HTTP 500/)
+  })
+
+  it('includes Authorization header when token present (branches)', async () => {
+    vi.resetModules()
+    vi.stubEnv('VITE_ACCOMMODATION_API_URL', VITE_ACCOMMODATION_API_URL)
+    vi.stubEnv('VITE_SEARCH_API_URL', VITE_SEARCH_API_URL)
+    vi.doMock('../../features/auth/api/authApi', () => ({
+      getAccessToken: () => 'tok',
+      getTokenType: () => 'Bearer',
+    }))
+    const mod = await import('../../features/accommodations/api/accommodationsApi')
+
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) })
+    await mod.fetchAccommodations()
+    const [, opts] = (globalThis.fetch as any).mock.calls[0]
+    expect(opts.headers.Authorization).toBe('Bearer tok')
+
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ id: 'a1' }) })
+    await mod.fetchAccommodationById('a1')
+    const [, opts2] = (globalThis.fetch as any).mock.calls[0]
+    expect(opts2.headers.Authorization).toBe('Bearer tok')
   })
 
   it('fetchAccommodationById returns dto and handles error', async () => {

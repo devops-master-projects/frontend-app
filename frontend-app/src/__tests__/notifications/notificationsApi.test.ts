@@ -23,6 +23,14 @@ describe('notificationsApi', () => {
     expect(updated.enabled).toBe(false)
   })
 
+  it('fetchNotificationSettings/updateNotificationSetting throw on non-ok (branches)', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 401, text: () => Promise.resolve('Nope') })
+    await expect(api.fetchNotificationSettings()).rejects.toThrow(/Nope|HTTP 401/)
+
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, text: () => Promise.resolve('Boom') })
+    await expect(api.updateNotificationSetting('EMAIL', true)).rejects.toThrow(/Boom|HTTP 500/)
+  })
+
   it('getUserNotifications/unread/getNotificationById work, error on non-ok, and call correct URL', async () => {
     const list = [{ id: 'n1', notifType: 'INFO', message: 'hi', createdAt: '', read: false }]
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(list) })
@@ -50,5 +58,19 @@ describe('notificationsApi', () => {
     expect(globalThis.fetch).toHaveBeenCalled()
     await expect(api.deleteNotificationsBulk(['n1'])).resolves.toBeUndefined()
     expect(globalThis.fetch).toHaveBeenCalled()
+  })
+
+  it('mark endpoints throw on non-ok (branches)', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 400, text: () => Promise.resolve('Bad') })
+    await expect(api.markAllAsRead()).rejects.toThrow(/Bad|HTTP 400/)
+
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404, text: () => Promise.resolve('Missing') })
+    await expect(api.markAsRead('n1')).rejects.toThrow(/Missing|HTTP 404/)
+
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, text: () => Promise.resolve('Server') })
+    await expect(api.markSelectedAsRead(['a'])).rejects.toThrow(/Server|HTTP 500/)
+
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 403, text: () => Promise.resolve('Forbidden') })
+    await expect(api.deleteNotificationsBulk(['a'])).rejects.toThrow(/Forbidden|HTTP 403/)
   })
 })
