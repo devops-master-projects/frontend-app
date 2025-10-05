@@ -17,8 +17,12 @@ import { fetchAccommodationById } from "../api/accommodationsApi";
 import HostNavbar from "../navbar/HostNavbar.tsx";
 import PhotoCarousel from "./PhotoCarousel.tsx";
 import GuestNavbar from "../navbar/GuestNavbar.tsx";
-import {getRole} from "../../auth/api/authApi.ts";
-
+import {getHostProfile, getRole, getUserId} from "../../auth/api/authApi.ts";
+import {ReviewsSection} from "../../reviews/pages/ReviewsSection.tsx";
+import {canGuestRateAccommodation} from "../../booking/api/bookingApi.ts";
+import type {HostProfile} from "../../auth/api/authApi.ts";
+import { Link } from "react-router-dom";
+import Navbar from "../navbar/Navbar.tsx";
 export default function AccommodationDetailsPage() {
     const theme = useTheme();
     const navigate = useNavigate();
@@ -27,16 +31,39 @@ export default function AccommodationDetailsPage() {
     const [accommodation, setAccommodation] = useState<AccommodationResponseDto | null>(null);
     const [error, setError] = useState<string | null>(null);
     const role : string = getRole();
+    const userIdFromToken: string = getUserId();
+    const [canRate, setCanRate] = useState<boolean>(false);
+    const [host, setHost] = useState<HostProfile | null>(null);
+    // const [canRateHost, setCanRateHost] = useState(false);
 
     useEffect(() => {
         if (!id) return;
+
         fetchAccommodationById(id)
-            .then((data) => setAccommodation(data))
+            .then((data) => {
+                setAccommodation(data);
+            })
             .catch((err) => {
                 console.error("Error loading accommodation:", err);
                 setError(err.message);
             });
     }, [id]);
+
+    useEffect(() => {
+        if (role === "HOST" || !accommodation?.hostId) return;
+
+        getHostProfile(accommodation.hostId)
+            .then(setHost)
+            .catch((err) => console.error("Failed to load host profile", err));
+
+        if (role !== "GUEST") return;
+        canGuestRateAccommodation(accommodation.id)
+            .then(setCanRate)
+            .catch((err) =>
+                console.error("Failed to check accommodation rating eligibility", err)
+            );
+    }, [role, accommodation]);
+
 
     if (error) {
         return (
@@ -58,6 +85,7 @@ export default function AccommodationDetailsPage() {
         <>
         {role === "HOST" && <HostNavbar /> as ReactElement}
         {role === "GUEST" && <GuestNavbar /> as ReactElement}
+        {role === "" && <Navbar /> as ReactElement}
         <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
             <Paper sx={{ p: 4 }}>
                 <Typography
@@ -110,10 +138,42 @@ export default function AccommodationDetailsPage() {
                     </Box>
                 </Box>
 
+                {host && (
+                    <Box
+                        sx={{
+                            mt: 3,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Typography
+                            component={Link}
+                            to={`/hosts/${host.id}`}
+                            state={{ host }}
+                            variant="subtitle1"
+                            sx={{
+                                display: "inline-block",
+                                fontWeight: 600,
+                                textDecoration: "none",
+                                color: "inherit",
+                                cursor: "pointer",
+                                transition: "color 0.2s ease, transform 0.2s ease",
+                                "&:hover": {
+                                    color: "primary.main",
+                                    textDecoration: "underline",
+                                    transform: "scale(1.02)",
+                                },
+                            }}
+                        >
+                            Host: {host.firstName} {host.lastName}
+                        </Typography>
+                    </Box> as ReactElement
+                )}
 
                 {/* Dugmad */}
                 <Box sx={{ mt: 4, display: "flex", gap: 2 }}>
-                    {role === "HOST" &&
+                    {role === "HOST" && userIdFromToken === accommodation.hostId &&
                     <Button
                         variant="contained"
                         color="primary"
@@ -122,7 +182,7 @@ export default function AccommodationDetailsPage() {
                         EDIT
                     </Button> as ReactElement
                     }
-                    { role === "HOST" &&
+                    { role === "HOST" && userIdFromToken === accommodation.hostId  &&
                     <Button
                         variant="contained"
                         color="primary"
@@ -132,15 +192,18 @@ export default function AccommodationDetailsPage() {
                     </Button> as ReactElement
                     }
                     { role === "GUEST" &&
+                        <>
                         <Button
                             variant="contained"
                             color="primary"
                             onClick={() => navigate(`/accommodations/${accommodation.id}/reservations/new`)}
                         >
                             Book now
-                        </Button> as ReactElement
+                        </Button>
+
+                        </> as ReactElement
                     }
-                    { role === "HOST" &&
+                    { role === "HOST" && userIdFromToken === accommodation.hostId &&
                     <Button
                         variant="contained"
                         color="primary"
@@ -153,6 +216,18 @@ export default function AccommodationDetailsPage() {
 
                 {accommodation.urlPhotos?.length > 0 && (
                     <PhotoCarousel photos={accommodation.urlPhotos} name={accommodation.name} /> as ReactElement
+                )}
+                <ReviewsSection accommodationId={accommodation.id} />
+                {role === "GUEST" && canRate && (
+                    <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => navigate(`/accommodations/${accommodation.id}/reviews/new`)}
+                        >
+                            Leave a Review
+                        </Button>
+                    </Box> as ReactElement
                 )}
 
             </Paper>
