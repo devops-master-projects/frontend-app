@@ -20,8 +20,9 @@ export type AvailabilityResponseDto = {
     priceType: "NORMAL" | "HOLIDAY" | "SEASONAL" | "WEEKEND"; // jednoznačno
 };
 
-const BASE_URL = import.meta.env.VITE_BOOKING_API_URL;
 
+import { config } from "../../../config/env.ts";
+const BASE_URL = config.bookingApiUrl;
 
 export type ReservationRequestCreateDto = {
     accommodationId: string;

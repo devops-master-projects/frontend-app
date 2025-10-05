@@ -76,13 +76,17 @@ export interface SearchResponse {
     pricingMode: "PER_PERSON" | "PER_ACCOMMODATION" | "PER_NIGHT" | "FIXED";
 }
 
+import { config } from "../../../config/env.ts";
+const ACCOMMODATION_API_URL = config.accommodationApiUrl;
+const SEARCH_API_URL = config.searchApiUrl;
+const CLOUDINARY = config.cloudinary;
 
 export async function getAutoConfirm(accommodationId: string): Promise<boolean> {
     const token = getAccessToken();
     const tokenType = getTokenType();
 
     const res = await fetch(
-        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`,
+        `${ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`,
         {
             method: "GET",
             headers: {
@@ -109,7 +113,7 @@ export async function updateAutoConfirm(
     const tokenType = getTokenType();
 
     const res = await fetch(
-        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`,
+        `${ACCOMMODATION_API_URL}/api/accommodations/${accommodationId}/auto-confirm`,
         {
             method: "PATCH",
             headers: {
@@ -130,9 +134,8 @@ export async function fetchAccommodations(): Promise<SearchResponse[]> {
     const token = getAccessToken();
     const tokenType = getTokenType();
 
-    console.log(`${import.meta.env.VITE_SEARCH_API_URL}/api/search/all`);
 
-    const res = await fetch(`${import.meta.env.VITE_SEARCH_API_URL}/api/search/all`, {
+    const res = await fetch(`${SEARCH_API_URL}/api/search/all`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -151,11 +154,11 @@ export async function fetchAccommodations(): Promise<SearchResponse[]> {
 export async function uploadPhotoToCloudinary(file: File): Promise<string> {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    formData.append("upload_preset", CLOUDINARY.uploadPreset);
 
 
     const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/image/upload`,
         {
             method: "POST",
             body: formData,
@@ -179,7 +182,7 @@ export async function createAccommodation(
     const tokenType = getTokenType();
 
     const res = await fetch(
-        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations`,
+        `${ACCOMMODATION_API_URL}/api/accommodations`,
         {
             method: "POST",
             headers: {
@@ -202,7 +205,7 @@ export async function fetchAccommodationById(id: string): Promise<AccommodationR
     const tokenType = getTokenType();
 
     const res = await fetch(
-        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${id}`,
+        `${ACCOMMODATION_API_URL}/api/accommodations/${id}`,
         {
             method: "GET",
             headers: {
@@ -228,7 +231,7 @@ export async function updateAccommodation(
     const tokenType = getTokenType();
 
     const res = await fetch(
-        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/accommodations/${id}`,
+        `${ACCOMMODATION_API_URL}/api/accommodations/${id}`,
         {
             method: "PUT",
             headers: {
@@ -256,7 +259,7 @@ export interface SearchRequest {
 export async function searchAccommodations(
     req: SearchRequest
 ): Promise<SearchResponse[]> {
-    const res = await fetch(`${import.meta.env.VITE_SEARCH_API_URL}/api/search`, {
+    const res = await fetch(`${SEARCH_API_URL}/api/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(req),

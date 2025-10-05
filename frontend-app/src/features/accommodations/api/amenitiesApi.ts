@@ -10,6 +10,9 @@ export interface AmenityResponseDto {
 }
 import {getAccessToken, getTokenType} from "../../auth/api/authApi.ts";
 
+import { config } from "../../../config/env.ts";
+const ACCOMMODATION_API_URL = config.accommodationApiUrl;
+
 export async function createAmenity(
     request: AmenityRequestDto
 ): Promise<AmenityResponseDto> {
@@ -17,7 +20,7 @@ export async function createAmenity(
     const tokenType = getTokenType();
 
     const res = await fetch(
-        `${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/amenities`,
+        `${ACCOMMODATION_API_URL}/api/amenities`,
         {
             method: "POST",
             headers: {
@@ -41,7 +44,7 @@ export async function fetchAmenities(): Promise<AmenityResponseDto[]> {
     const token = getAccessToken();
     const tokenType = getTokenType();
 
-    const res = await fetch(`${import.meta.env.VITE_ACCOMMODATION_API_URL}/api/amenities`, {
+    const res = await fetch(`${ACCOMMODATION_API_URL}/api/amenities`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

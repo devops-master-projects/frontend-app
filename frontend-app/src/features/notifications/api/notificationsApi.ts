@@ -14,12 +14,14 @@ export interface Notification {
     read: boolean;
 }
 
+import { config } from "../../../config/env.ts";
+const NOTIFICATION_API_URL = config.notificationApiUrl;
 
 export async function fetchNotificationSettings(): Promise<NotificationSettingsDto[]> {
     const token = getAccessToken();
 
     const res = await fetch(
-        `${import.meta.env.VITE_NOTIFICATION_API_URL}/api/notification-settings`,
+        `${NOTIFICATION_API_URL}/api/notification-settings`,
         {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -42,7 +44,7 @@ export async function updateNotificationSetting(
     const token = getAccessToken();
 
     const res = await fetch(
-        `${import.meta.env.VITE_NOTIFICATION_API_URL}/api/notification-settings/${notifType}?enabled=${enabled}`,
+        `${NOTIFICATION_API_URL}/api/notification-settings/${notifType}?enabled=${enabled}`,
         {
             method: "PATCH",
             headers: {
@@ -70,7 +72,7 @@ export interface NotificationDto {
     read: boolean;
 }
 
-const BASE_URL = import.meta.env.VITE_NOTIFICATION_API_URL;
+const BASE_URL = NOTIFICATION_API_URL;
 
 export async function getNotificationById(id: string): Promise<NotificationDto> {
     const token = getAccessToken();

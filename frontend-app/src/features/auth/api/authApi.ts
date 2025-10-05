@@ -85,9 +85,12 @@ async function authFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   if (token) headers.set('Authorization', `${tokenType} ${token}`);
   return fetch(input, { ...init, headers });
 }
+import { config } from "../../../config/env.ts";
+const API_URL = config.apiUrl;
+
 
 export async function registerUser(body: RegisterRequest): Promise<string> {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+  const res = await fetch(`${API_URL}/api/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -113,7 +116,7 @@ export function getUserId(): string {
 
 export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
 
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -198,7 +201,7 @@ export function getUserInfoFromToken(): UserInfo | null {
 export async function refreshToken(): Promise<LoginResponse> {
   const refresh_token = localStorage.getItem('refresh_token');
   if (!refresh_token) throw new Error('No refresh token');
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/refresh`, {
+  const res = await fetch(`${API_URL}/api/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh_token }),
@@ -214,7 +217,7 @@ export async function refreshToken(): Promise<LoginResponse> {
 }
 
 export async function getProfile(): Promise<UpdateProfileRequest> {
-  const res = await authFetch(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
+  const res = await authFetch(`${API_URL}/api/auth/profile`, {
     method: 'GET',
   });
   if (!res.ok) {
@@ -226,7 +229,7 @@ export async function getProfile(): Promise<UpdateProfileRequest> {
 }
 
 export async function updateProfile(body: UpdateProfileRequest): Promise<string> {
-  const res = await authFetch(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
+  const res = await authFetch(`${API_URL}/api/auth/profile`, {
     method: 'PUT',
     body: JSON.stringify(body),
   });
@@ -236,7 +239,7 @@ export async function updateProfile(body: UpdateProfileRequest): Promise<string>
 }
 
 export async function changeCredentials(body: ChangeCredentialsRequest): Promise<string> {
-  const res = await authFetch(`${import.meta.env.VITE_API_URL}/api/auth/credentials`, {
+  const res = await authFetch(`${API_URL}/api/auth/credentials`, {
     method: 'PUT',
     body: JSON.stringify(body),
   });
@@ -258,7 +261,7 @@ export interface HostProfile {
 
 export async function getHostProfile(hostId: string): Promise<HostProfile> {
   const res = await authFetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/host/${hostId}`,
+      `${API_URL}/api/auth/host/${hostId}`,
       {
         method: 'GET',
       }

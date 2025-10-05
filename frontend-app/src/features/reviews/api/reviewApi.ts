@@ -1,6 +1,9 @@
 import { getAccessToken } from "../../auth/api/authApi.ts";
 
-const BASE_URL = import.meta.env.VITE_REVIEW_API_URL;
+
+import { config } from "../../../config/env.ts";
+const BASE_URL = config.reviewApiUrl;
+
 
 export interface AccommodationReviewDTO {
     id: string;
