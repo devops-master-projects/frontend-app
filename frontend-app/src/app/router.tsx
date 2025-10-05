@@ -15,6 +15,11 @@ import Profile from "../features/auth/pages/Profile.tsx";
 import NotificationDetailsPage from "../features/notifications/pages/NotificationDetailsPage.tsx";
 import NotificationsPage from "../features/notifications/pages/NotificationsPage.tsx";
 
+import NewReviewPage from "../features/reviews/pages/NewReviewPage.tsx";
+import HostReviewPage from "../features/reviews/pages/HostReviewPage.tsx";
+import NewHostReviewPage from "../features/reviews/pages/NewHostReviewPage.tsx";
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -75,6 +80,27 @@ const router = createBrowserRouter([
   {
     path: "/notifications/:id",
     element: <NotificationDetailsPage />,
+  },
+
+  {
+    path: "/accommodations/:id/reviews/new",
+    element: <NewReviewPage />,
+  },
+  {
+    path: "/accommodations/:id/reviews/:reviewId/edit",
+    element: <NewReviewPage />,
+  },
+  {
+    path: "/hosts/:id",
+    element: <HostReviewPage />,
+  },
+  {
+    path: "/hosts/:id/reviews/new",
+    element: <NewHostReviewPage />,
+  },
+  {
+    path: "/hosts/:id/reviews/:reviewId/edit",
+    element: <NewHostReviewPage />,
   },
 
 
