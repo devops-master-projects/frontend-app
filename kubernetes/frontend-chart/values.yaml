@@ -50,6 +50,8 @@ env:
     value: "http://localhost:8087"
   - name: VITE_NOTIFICATION_API_URL
     value: "http://localhost:8088"
+  - name: VITE_REVIEW_API_URL
+    value: "http://localhost:8089"
 
 autoscaling:
   enabled: false
