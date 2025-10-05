@@ -110,6 +110,7 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                     <IconButton
                         color="inherit"
                         onClick={handleHomeClick}
+                        data-testid="host-navbar-home"
                         sx={{ fontWeight: 600 }}
                     >
                         <Home />
@@ -149,6 +150,7 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                         <IconButton
                             color="inherit"
                             onClick={() => setShowSearch((prev) => !prev)}
+                            data-testid="host-navbar-toggle-search"
                         >
                             <Search />
                         </IconButton>
@@ -157,6 +159,7 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                         <IconButton
                             color="inherit"
                             onClick={(e) => setAnchorEl(e.currentTarget)}
+                            data-testid="host-navbar-open-notifications"
                         >
                             <Notifications />
                         </IconButton>
@@ -228,7 +231,7 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                             onChange={setEndDate}
                             slotProps={{ textField: { sx: { minWidth: 160 } } }}
                         />
-                        <Button variant="contained" onClick={handleSearch}>
+                        <Button variant="contained" onClick={handleSearch} data-testid="host-navbar-submit-search">
                             Search
                         </Button>
                     </Box>

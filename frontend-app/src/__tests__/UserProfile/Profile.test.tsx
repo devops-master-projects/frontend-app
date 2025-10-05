@@ -45,34 +45,27 @@ describe('Profile component', () => {
   });
 
   it('submits profile successfully and shows success alert', async () => {
-    vi.mocked(getProfile).mockResolvedValue({
-      firstName: '',
-      lastName: '',
-      email: '',
-      address: '',
-    });
-    vi.mocked(updateProfile).mockResolvedValue('Profile updated successfully!');
+    vi.mocked(getProfile).mockResolvedValue({ firstName: '', lastName: '', email: '', address: '' })
+    vi.mocked(updateProfile).mockResolvedValue('Profile updated successfully!')
 
-    render(<Profile />);
-    const user = userEvent.setup();
+    render(<Profile />)
 
-    await user.type(screen.getByLabelText(/first name/i), 'Nikola');
-    await user.type(screen.getByLabelText(/last name/i), 'Tesla');
-    await user.type(screen.getByLabelText(/email/i), 'tesla@acme.com');
-    await user.type(screen.getByLabelText(/address/i), 'Wardenclyffe');
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'Nikola' } })
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Tesla' } })
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'tesla@acme.com' } })
+    fireEvent.change(screen.getByLabelText(/address/i), { target: { value: 'Wardenclyffe' } })
 
-    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save changes/i }))
 
-    await waitFor(() => {
-      expect(updateProfile).toHaveBeenCalledWith({
-        firstName: 'Nikola',
-        lastName: 'Tesla',
-        email: 'tesla@acme.com',
-        address: 'Wardenclyffe',
-      });
-      expect(screen.getByText(/profile updated successfully/i)).toBeInTheDocument();
-    });
-  });
+    await screen.findByText(/profile updated successfully/i)
+
+    expect(updateProfile).toHaveBeenCalledWith({
+      firstName: 'Nikola',
+      lastName: 'Tesla',
+      email: 'tesla@acme.com',
+      address: 'Wardenclyffe',
+    })
+  })
 
   it('shows error alert when updateProfile fails', async () => {
     vi.mocked(getProfile).mockResolvedValue({
