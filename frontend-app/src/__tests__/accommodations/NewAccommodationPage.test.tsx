@@ -3,7 +3,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import * as api from '../../features/accommodations/api/accommodationsApi'
+import type { AccommodationResponseDto } from '../../features/accommodations/api/accommodationsApi'
 import * as amen from '../../features/accommodations/api/amenitiesApi'
+import type { AmenityResponseDto } from '../../features/accommodations/api/amenitiesApi'
 import NewPage from '../../features/accommodations/pages/NewAccommodationPage'
 
 vi.mock('../../features/accommodations/navbar/HostNavbar.tsx', () => ({ default: () => null }))
@@ -17,13 +19,16 @@ vi.setConfig({ testTimeout: 15000 })
 describe('NewAccommodationPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(amen.fetchAmenities).mockResolvedValue([{ id: 'am1', name: 'Wifi' }] as any)
-    ;(global.URL as any).createObjectURL = vi.fn(() => 'blob://test')
+    vi.mocked(amen.fetchAmenities).mockResolvedValue([{ id: 'am1', name: 'Wifi', description: '' }] as AmenityResponseDto[])
+    Object.defineProperty(global, 'URL', {
+      value: { createObjectURL: vi.fn(() => 'blob://test') as (b: Blob) => string },
+      writable: true,
+    })
   })
 
   it('validates required fields and does not submit without photo', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/accommodations/new' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/accommodations/new' }] }>
         <Routes>
           <Route path="/accommodations/new" element={<NewPage />} />
         </Routes>
@@ -38,10 +43,22 @@ describe('NewAccommodationPage', () => {
 
   it('submits when valid: uploads photo and creates accommodation', async () => {
     vi.mocked(api.uploadPhotoToCloudinary).mockResolvedValue('http://img/p1.jpg')
-    vi.mocked(api.createAccommodation).mockResolvedValue(undefined as any)
+    const created: AccommodationResponseDto = {
+      id: 'a1',
+      name: 'Cabin',
+      minGuests: 1,
+      maxGuests: 2,
+      description: 'Nice',
+      urlPhotos: ['http://img/p1.jpg'],
+      location: { country: 'Serbia', city: 'Belgrade', address: 'Main', postalCode: '11000' },
+      autoConfirm: false,
+      pricingMode: 'PER_NIGHT',
+      amenities: [],
+    }
+    vi.mocked(api.createAccommodation).mockResolvedValue(created)
 
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/accommodations/new' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/accommodations/new' }] }>
         <Routes>
           <Route path="/accommodations/new" element={<NewPage />} />
           <Route path="/accommodations" element={<div>List</div>} />
@@ -56,11 +73,11 @@ describe('NewAccommodationPage', () => {
     fireEvent.change(screen.getByLabelText(/postal code/i), { target: { value: '11000' } })
     fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Nice' } })
 
-    // Add one file
+  // Add one file
   const file = new File(['x'], 'p.jpg', { type: 'image/jpeg' })
   const uploader = screen.getByRole('button', { name: /drag & drop or click to select photos/i })
   const input = uploader.querySelector('input[type="file"]') as HTMLInputElement
-  fireEvent.change(input, { target: { files: { 0: file, length: 1, item: () => file } } })
+  await userEvent.upload(input, file)
 
   await userEvent.click(screen.getByRole('button', { name: /save accommodation/i }))
 

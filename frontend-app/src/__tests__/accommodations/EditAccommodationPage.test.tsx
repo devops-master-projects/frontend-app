@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import * as api from '../../features/accommodations/api/accommodationsApi'
+import type { AccommodationResponseDto } from '../../features/accommodations/api/accommodationsApi'
+import type { AmenityResponseDto } from '../../features/accommodations/api/amenitiesApi'
 import * as amen from '../../features/accommodations/api/amenitiesApi'
 import EditPage from '../../features/accommodations/pages/EditAccommodationPage'
 
@@ -17,7 +19,7 @@ vi.mock('../../features/accommodations/api/amenitiesApi', () => ({
 vi.setConfig({ testTimeout: 15000 })
 
 
-const existing = {
+const existing: AccommodationResponseDto = {
   id: 'a1',
   name: 'Casa',
   location: { country: 'RS', city: 'BG', address: 'Street', postalCode: '11000' },
@@ -27,21 +29,26 @@ const existing = {
   autoConfirm: false,
   pricingMode: 'FIXED',
   urlPhotos: ['old.jpg'],
-  amenities: [{ id: 'am1', name: 'Wifi' }],
+  amenities: [{ id: 'am1', name: 'Wifi', description: '' }],
 }
 
 describe('EditAccommodationPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(amen.fetchAmenities).mockResolvedValue([{ id: 'am1', name: 'Wifi' }] as any)
+    vi.mocked(amen.fetchAmenities).mockResolvedValue([{ id: 'am1', name: 'Wifi', description: '' }] as AmenityResponseDto[])
     // JSDOM doesn’t have URL.createObjectURL
-    ;(global.URL as any).createObjectURL = vi.fn(() => 'blob://test')
+    Object.defineProperty(global, 'URL', {
+      value: {
+        createObjectURL: vi.fn(() => 'blob://test') as (blob: Blob) => string,
+      },
+      writable: true,
+    })
   })
 
   it('loads data, allows adding a photo and updates accommodation', async () => {
-    vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing as any)
+  vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing)
     vi.mocked(api.uploadPhotoToCloudinary).mockResolvedValue('http://img/new.jpg')
-    vi.mocked(api.updateAccommodation).mockResolvedValue(undefined as any)
+  vi.mocked(api.updateAccommodation).mockResolvedValue(existing)
 
     render(
       <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
@@ -76,7 +83,7 @@ describe('EditAccommodationPage', () => {
   })
 
   it('shows validation errors if required fields are empty', async () => {
-    vi.mocked(api.fetchAccommodationById).mockResolvedValue({ ...existing, name: '' } as any)
+  vi.mocked(api.fetchAccommodationById).mockResolvedValue({ ...existing, name: '' })
 
     render(
       <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
@@ -95,9 +102,9 @@ describe('EditAccommodationPage', () => {
   })
 
   it('removes an existing photo and preserves remaining photos on submit', async () => {
-    vi.mocked(api.fetchAccommodationById).mockResolvedValue({ ...existing, urlPhotos: ['one.jpg', 'two.jpg'] } as any)
+  vi.mocked(api.fetchAccommodationById).mockResolvedValue({ ...existing, urlPhotos: ['one.jpg', 'two.jpg'] })
     vi.mocked(api.uploadPhotoToCloudinary).mockResolvedValue('http://img/new.jpg')
-    vi.mocked(api.updateAccommodation).mockResolvedValue(undefined as any)
+  vi.mocked(api.updateAccommodation).mockResolvedValue(existing)
 
     render(
       <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
@@ -118,17 +125,17 @@ describe('EditAccommodationPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /update accommodation/i }))
     await waitFor(() => expect(api.updateAccommodation).toHaveBeenCalled())
 
-    const [_id, payload] = vi.mocked(api.updateAccommodation).mock.calls[0]
+  const [, payload] = vi.mocked(api.updateAccommodation).mock.calls[0]
     expect(payload.photos).toEqual(['two.jpg']) // only remaining one
   })
 
   it('covers all handler functions explicitly', async () => {
-    vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing as any)
-    vi.mocked(api.updateAccommodation).mockResolvedValue(undefined as any)
+  vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing)
+  vi.mocked(api.updateAccommodation).mockResolvedValue(existing)
     vi.mocked(api.uploadPhotoToCloudinary).mockResolvedValue('http://img/new.jpg')
 
     render(
-        <MemoryRouter initialEntries={[{ pathname: '/accommodations/a1/edit' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/accommodations/a1/edit' }] }>
         <Routes>
             <Route path="/accommodations/:id/edit" element={<EditPage />} />
         </Routes>

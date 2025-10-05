@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { AccommodationResponseDto, AccommodationRequestDto } from '../../features/accommodations/api/accommodationsApi'
 
 describe('accommodationsApi', () => {
   const VITE_SEARCH_API_URL = 'https://search.api.test'
@@ -51,8 +52,8 @@ describe('accommodationsApi', () => {
     const dto = { id: 'x', name: 'N', minGuests: 1, maxGuests: 2, description: 'd', urlPhotos: [], location: { country: 'c', city: 'ci', address: '', postalCode: '' }, autoConfirm: false, pricingMode: 'PER_NIGHT', amenities: [] }
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(dto) })
 
-    const reqBody = { name: 'N', location: { country: 'c', city: 'ci', address: '', postalCode: '' }, minGuests: 1, maxGuests: 2, description: 'd', autoConfirm: false, pricingMode: 'PER_NIGHT', photos: [], amenities: [] }
-    const res = await api.createAccommodation(reqBody as any)
+  const reqBody = { name: 'N', location: { country: 'c', city: 'ci', address: '', postalCode: '' }, minGuests: 1, maxGuests: 2, description: 'd', autoConfirm: false, pricingMode: 'PER_NIGHT', photos: [], amenities: [] }
+  const res = await api.createAccommodation(reqBody)
     expect(res).toEqual(dto)
     expect(globalThis.fetch).toHaveBeenCalled()
   })
@@ -83,12 +84,12 @@ describe('accommodationsApi', () => {
 
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) })
     await mod.fetchAccommodations()
-    const [, opts] = (globalThis.fetch as any).mock.calls[0]
+  const [, opts] = (globalThis.fetch as unknown as { mock: { calls: [string, { headers: Record<string, string> }][] } }).mock.calls[0]
     expect(opts.headers.Authorization).toBe('Bearer tok')
 
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ id: 'a1' }) })
     await mod.fetchAccommodationById('a1')
-    const [, opts2] = (globalThis.fetch as any).mock.calls[0]
+  const [, opts2] = (globalThis.fetch as unknown as { mock: { calls: [string, { headers: Record<string, string> }][] } }).mock.calls[0]
     expect(opts2.headers.Authorization).toBe('Bearer tok')
   })
 
@@ -103,13 +104,14 @@ describe('accommodationsApi', () => {
   })
 
   it('updateAccommodation PUT returns dto and throws on error', async () => {
-    const dto = { id: 'a1', name: 'N', minGuests: 1, maxGuests: 2, description: '', urlPhotos: [], location: { country: 'c', city: 'ci', address: '', postalCode: '' }, autoConfirm: false, pricingMode: 'PER_NIGHT', amenities: [] }
+    const dto: AccommodationResponseDto = { id: 'a1', name: 'N', minGuests: 1, maxGuests: 2, description: '', urlPhotos: [], location: { country: 'c', city: 'ci', address: '', postalCode: '' }, autoConfirm: false, pricingMode: 'PER_NIGHT', amenities: [] }
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(dto) })
-    const res = await api.updateAccommodation('a1', dto as any)
+    const req: AccommodationRequestDto = { name: dto.name, location: dto.location, minGuests: dto.minGuests, maxGuests: dto.maxGuests, description: dto.description, autoConfirm: dto.autoConfirm, pricingMode: dto.pricingMode, photos: [], amenities: [] }
+    const res = await api.updateAccommodation('a1', req)
     expect(res).toEqual(dto)
 
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 400, text: () => Promise.resolve('Bad') })
-    await expect(api.updateAccommodation('a1', dto as any)).rejects.toThrow(/Bad/i)
+    await expect(api.updateAccommodation('a1', req)).rejects.toThrow(/Bad/i)
   })
 
   it('searchAccommodations posts search request and returns results; throws on error', async () => {

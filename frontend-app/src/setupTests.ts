@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import React from 'react'
 
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
@@ -20,7 +21,7 @@ vi.mock('@mui/icons-material', () => new Proxy({}, {
 // Mock MUI X Date Pickers to lightweight stubs to avoid heavy jsdom work
 vi.mock('@mui/x-date-pickers', () => ({
   DatePicker: () => null,
-  LocalizationProvider: (props: any) => props.children,
+  LocalizationProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
 // Mock AdapterDateFns export used by LocalizationProvider

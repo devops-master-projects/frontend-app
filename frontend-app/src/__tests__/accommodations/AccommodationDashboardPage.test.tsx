@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import type { ReactElement } from 'react'
+import type { SearchResponse } from '../../features/accommodations/api/accommodationsApi'
 
 // Lightweight stubs for navbars and card
 vi.mock('../../features/accommodations/navbar/HostNavbar.tsx', () => ({
-  default: (props: any) => (
+  default: (props: { onSearch?: (filters: { q?: string }) => void; onHome?: () => void }): ReactElement => (
     <div>
       <button data-testid="host-search" onClick={() => props.onSearch && props.onSearch({ q: 'beach' })}>Search</button>
       <button data-testid="host-home" onClick={() => props.onHome && props.onHome()}>Home</button>
@@ -12,14 +14,14 @@ vi.mock('../../features/accommodations/navbar/HostNavbar.tsx', () => ({
   )
 }))
 vi.mock('../../features/accommodations/navbar/GuestNavbar.tsx', () => ({
-  default: (props: any) => (
+  default: (props: { onHome?: () => void }): ReactElement => (
     <div>
       <button data-testid="guest-home" onClick={() => props.onHome && props.onHome()}>Home</button>
     </div>
   )
 }))
 vi.mock('../../features/accommodations/pages/AccommodationCard', () => ({
-  default: (props: any) => <div data-testid={`acc-${props.accommodation.id}`}>{props.accommodation.name}</div>
+  default: (props: { accommodation: SearchResponse }): ReactElement => <div data-testid={`acc-${props.accommodation.id}`}>{props.accommodation.name}</div>
 }))
 
 // Mock role and API
@@ -33,7 +35,7 @@ import * as api from '../../features/accommodations/api/accommodationsApi'
 import Dashboard from '../../features/accommodations/pages/AccommodationDashboard'
 import * as auth from '../../features/auth/api/authApi'
 
-const makeItems = (n: number) => Array.from({ length: n }).map((_, i) => ({
+const makeItems = (n: number): SearchResponse[] => Array.from({ length: n }).map((_, i) => ({
   id: String(i + 1),
   name: `Place ${i + 1}`,
   location: { city: 'X', country: 'Y', address: '', postalCode: '' },
@@ -42,6 +44,9 @@ const makeItems = (n: number) => Array.from({ length: n }).map((_, i) => ({
   amenities: [],
   minGuests: 1,
   maxGuests: 2,
+  totalPrice: 0,
+  unitPrice: 0,
+  pricingMode: 'FIXED',
 }))
 
 describe('AccommodationDashboard', () => {
@@ -50,10 +55,10 @@ describe('AccommodationDashboard', () => {
   })
 
   it('renders list, paginates, and onHome resets to first page', async () => {
-    vi.mocked(api.fetchAccommodations).mockResolvedValue(makeItems(7) as any)
+  vi.mocked(api.fetchAccommodations).mockResolvedValue(makeItems(7))
 
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/accommodations' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/accommodations' }]}>
         <Routes>
           <Route path="/accommodations" element={<Dashboard />} />
         </Routes>
@@ -77,18 +82,18 @@ describe('AccommodationDashboard', () => {
   })
 
   it('HOST: home refreshes accommodations and search navigates to results', async () => {
-    vi.mocked(api.fetchAccommodations).mockResolvedValue(makeItems(3) as any)
+  vi.mocked(api.fetchAccommodations).mockResolvedValue(makeItems(3))
     const results = makeItems(2)
-    const searchSpy = vi.spyOn(api, 'searchAccommodations').mockResolvedValue(results as any)
+  const searchSpy = vi.spyOn(api, 'searchAccommodations').mockResolvedValue(results)
     vi.spyOn(auth, 'getRole').mockImplementation(() => 'HOST')
 
     const ResultsView = () => {
-      const loc = useLocation() as any
+      const loc = useLocation() as { state?: { results?: SearchResponse[] } }
       return <div>Results {loc.state?.results?.length ?? 0}</div>
     }
 
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/accommodations' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/accommodations' }]}>
         <Routes>
           <Route path="/accommodations" element={<Dashboard />} />
           <Route path="/search-results" element={<ResultsView />} />

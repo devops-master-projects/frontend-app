@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import * as bookingApi from '../../features/booking/api/bookingApi'
+import type { ReservationRequestResponseDto } from '../../features/booking/api/bookingApi'
 import * as accApi from '../../features/accommodations/api/accommodationsApi'
 import Page from '../../features/booking/pages/HostAccommodationRequestsPage'
 
@@ -17,8 +18,10 @@ vi.mock('../../features/accommodations/api/accommodationsApi.ts', () => ({
   updateAutoConfirm: vi.fn(),
 }))
 
-const makeRequest = (over: Partial<any> = {}) => ({
+const makeRequest = (over: Partial<ReservationRequestResponseDto> = {}): ReservationRequestResponseDto => ({
   id: 'r1',
+  guestId: 'g',
+  accommodationId: 'abc',
   createdAt: '2099-01-01T00:00:00Z',
   guestFirstName: 'Ada',
   guestLastName: 'Lovelace',
@@ -38,15 +41,15 @@ describe('HostAccommodationRequestsPage', () => {
       makeRequest(),
       makeRequest({ id: 'r2', status: 'APPROVED' }),
       makeRequest({ id: 'r3', status: 'REJECTED' }),
-    ] as any)
+    ])
     vi.mocked(accApi.getAutoConfirm).mockResolvedValue(false)
-    vi.mocked(accApi.updateAutoConfirm).mockResolvedValue(undefined as any)
-    vi.mocked(bookingApi.updateReservationRequestStatus).mockResolvedValue(undefined as any)
+    vi.mocked(accApi.updateAutoConfirm).mockResolvedValue(undefined)
+  vi.mocked(bookingApi.updateReservationRequestStatus).mockResolvedValue(makeRequest({ status: 'APPROVED' }))
   })
 
   it('renders requests, toggles auto-approve, and approves/rejects a pending request', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/booking/abc/requests' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/booking/abc/requests' }] }>
         <Routes>
           <Route path="/booking/:id/requests" element={<Page />} />
         </Routes>

@@ -8,10 +8,10 @@ vi.mock("@mui/icons-material", () => ({
 }));
 vi.mock("react-swipeable-views", () => ({
   __esModule: true,
-  default: ({ index, onChangeIndex, children }: any) => (
+  default: ({ index, onChangeIndex, children }: { index: number; onChangeIndex: (i: number) => void; children: React.ReactNode[] }) => (
     <div data-testid="swipeable-views">
       {/* simulate swiping by rendering children[index] only */}
-      {children[index]}
+      {Array.isArray(children) ? children[index] : children}
       <button data-testid="simulate-swipe" onClick={() => onChangeIndex(1)}>
         SwipeToSecond
       </button>

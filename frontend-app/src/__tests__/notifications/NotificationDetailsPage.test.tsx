@@ -19,7 +19,7 @@ describe('NotificationDetailsPage', () => {
     })
 
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/notifications/n1' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/notifications/n1' }]}>
         <Routes>
           <Route path="/notifications/:id" element={<NotificationDetailsPage />} />
         </Routes>
@@ -34,10 +34,10 @@ describe('NotificationDetailsPage', () => {
   })
 
   it('renders empty state when API returns null/undefined', async () => {
-    vi.mocked(api.getNotificationById).mockResolvedValue(undefined as any)
+  vi.mocked(api.getNotificationById).mockResolvedValue(undefined as unknown as never)
 
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/notifications/missing' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/notifications/missing' }]}>
         <Routes>
           <Route path="/notifications/:id" element={<NotificationDetailsPage />} />
         </Routes>

@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
+import type { ReactNode } from 'react'
+import type { SearchResponse } from '../../features/accommodations/api/accommodationsApi'
 
 // Mock heavy external libs to avoid many file opens during test runs
 vi.mock('@mui/icons-material', () => ({
@@ -10,7 +12,7 @@ vi.mock('@mui/icons-material', () => ({
 }))
 vi.mock('react-swipeable-views', () => ({
   __esModule: true,
-  default: (props: any) => props.children,
+  default: ({ children }: { children: ReactNode }) => children,
 }))
 
 // Default getRole mock (guest). We'll reconfigure via spy in tests when needed.
@@ -23,13 +25,28 @@ describe('AccommodationCard', () => {
     vi.clearAllMocks()
   })
 
+  const makeSearchItem = (overrides: Partial<SearchResponse>): SearchResponse => ({
+    id: 'id',
+    name: 'Name',
+    description: '',
+    location: { city: '', country: '', address: '', postalCode: '' },
+    photos: [],
+    amenities: [],
+    minGuests: 0,
+    maxGuests: 0,
+    totalPrice: 0,
+    unitPrice: 0,
+    pricingMode: 'FIXED',
+    ...overrides,
+  })
+
   it('renders basic information and details link', () => {
-    const acc = {
-      id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, description: 'Nice place', photos: ['p1.jpg', 'p2.jpg'], amenities: [], minGuests: 1, maxGuests: 2
-    }
+    const acc = makeSearchItem({
+      id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, description: 'Nice place', photos: ['p1.jpg', 'p2.jpg'], minGuests: 1, maxGuests: 2,
+    })
     render(
       <BrowserRouter>
-        <AccommodationCard accommodation={acc as any} />
+        <AccommodationCard accommodation={acc} />
       </BrowserRouter>
     )
 
@@ -39,12 +56,12 @@ describe('AccommodationCard', () => {
   })
 
   it('does not show edit for guest and shows for host', async () => {
-    const acc = { id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, description: '', photos: [], amenities: [], minGuests: 1, maxGuests: 2 }
+    const acc = makeSearchItem({ id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, photos: [], minGuests: 1, maxGuests: 2 })
 
     // Guest (default mock)
     render(
       <BrowserRouter>
-        <AccommodationCard accommodation={acc as any} />
+        <AccommodationCard accommodation={acc} />
       </BrowserRouter>
     )
   expect(screen.queryByRole('link', { name: /edit/i })).toBeNull()
@@ -54,7 +71,7 @@ describe('AccommodationCard', () => {
     // re-render with host behavior
     render(
       <BrowserRouter>
-        <AccommodationCard accommodation={acc as any} />
+        <AccommodationCard accommodation={acc} />
       </BrowserRouter>
     )
   expect(screen.getAllByRole('link', { name: /edit/i }).length).toBeGreaterThanOrEqual(1)
@@ -62,16 +79,14 @@ describe('AccommodationCard', () => {
   })
 
   it('handles carousel next/back and disables at ends', async () => {
-    const acc = {
-      id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, description: 'Nice', photos: ['p1.jpg', 'p2.jpg'], amenities: [], minGuests: 1, maxGuests: 2
-    }
+    const acc = makeSearchItem({ id: '1', name: 'House', location: { city: 'X', country: 'Y', address: '', postalCode: '' }, description: 'Nice', photos: ['p1.jpg', 'p2.jpg'], minGuests: 1, maxGuests: 2 })
 
     // Host role to also render EDIT button (exercise branch)
     vi.spyOn(authApi, 'getRole').mockImplementation(() => 'HOST')
 
     render(
       <BrowserRouter>
-        <AccommodationCard accommodation={acc as any} />
+        <AccommodationCard accommodation={acc} />
       </BrowserRouter>
     )
 

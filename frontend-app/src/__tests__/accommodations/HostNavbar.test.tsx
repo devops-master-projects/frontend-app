@@ -11,8 +11,8 @@ vi.mock("@mui/icons-material", () => ({
   Notifications: () => null,
 }))
 vi.mock("@mui/x-date-pickers", () => ({
-  LocalizationProvider: ({ children }: any) => children,
-  DatePicker: (props: any) => (
+  LocalizationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  DatePicker: (props: { label: string; onChange?: (d: Date | null) => void }) => (
     <input
       aria-label={props.label}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {

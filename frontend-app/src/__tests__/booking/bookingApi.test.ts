@@ -16,8 +16,8 @@ describe('bookingApi', () => {
     const dto = { id: 'r1', guestId: 'g', accommodationId: 'a', startDate: '2025-10-10', endDate: '2025-10-11', guestCount: 2, status: 'PENDING', createdAt: '' }
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(dto) })
 
-    const req = { accommodationId: 'a', startDate: '2025-10-10', endDate: '2025-10-11', guestCount: 2 }
-    const res = await api.createReservationRequest(req as any)
+  const req = { accommodationId: 'a', startDate: '2025-10-10', endDate: '2025-10-11', guestCount: 2 }
+  const res = await api.createReservationRequest(req)
     expect(res).toEqual(dto)
     expect(globalThis.fetch).toHaveBeenCalledWith(
       `${VITE_BOOKING_API_URL}/api/reservation-requests`,
@@ -28,7 +28,7 @@ describe('bookingApi', () => {
   it('createReservationRequest throws on non-ok (branch)', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 409, text: () => Promise.resolve('Conflict') })
     const req = { accommodationId: 'a', startDate: '2025-10-10', endDate: '2025-10-11', guestCount: 2 }
-    await expect(api.createReservationRequest(req as any)).rejects.toThrow(/Conflict|HTTP 409/)
+  await expect(api.createReservationRequest(req)).rejects.toThrow(/Conflict|HTTP 409/)
   })
 
   it('getReservationRequestsByGuest returns list and handles error', async () => {
@@ -53,10 +53,10 @@ describe('bookingApi', () => {
   })
 
   it('createAvailability/getAvailability/updateAvailability/deleteAvailability flow', async () => {
-    const avail = { id: 'a1', startDate: '2025-10-01', endDate: '2025-10-02', price: 100, status: 'AVAILABLE', priceType: 'NORMAL' }
+  const avail = { id: 'a1', accommodationId: 'acc', startDate: '2025-10-01', endDate: '2025-10-02', price: 100, status: 'AVAILABLE', priceType: 'NORMAL' }
     // create
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(avail) })
-    const created = await api.createAvailability({ accommodationId: 'acc', startDate: '', endDate: '', price: 1, priceType: 'NORMAL' } as any)
+  const created = await api.createAvailability({ accommodationId: 'acc', startDate: '', endDate: '', price: 1, priceType: 'NORMAL' })
     expect(created).toEqual(avail)
 
     // getAvailability
@@ -102,13 +102,13 @@ describe('bookingApi', () => {
     const mod = await import('../../features/booking/api/bookingApi')
 
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ id: 'x' }) })
-    await mod.createAvailability({ accommodationId: 'a', startDate: '2025-01-01', endDate: '2025-01-02', price: 1, priceType: 'NORMAL' } as any)
-    const [, opts] = (globalThis.fetch as any).mock.calls[0]
+  await mod.createAvailability({ accommodationId: 'a', startDate: '2025-01-01', endDate: '2025-01-02', price: 1, priceType: 'NORMAL' })
+  const [, opts] = (globalThis.fetch as unknown as { mock: { calls: [string, { headers: Record<string, string> }][] } }).mock.calls[0]
     expect(opts.headers.Authorization).toBe('Bearer token123')
 
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) })
     await mod.getAvailability('a')
-    const [, opts2] = (globalThis.fetch as any).mock.calls[0]
+  const [, opts2] = (globalThis.fetch as unknown as { mock: { calls: [string, { headers: Record<string, string> }][] } }).mock.calls[0]
     expect(opts2.headers.Authorization).toBe('Bearer token123')
   })
 

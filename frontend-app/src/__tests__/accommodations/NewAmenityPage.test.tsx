@@ -10,10 +10,10 @@ vi.mock('../../features/accommodations/api/amenitiesApi', () => ({ createAmenity
 
 describe('NewAmenityPage', () => {
   it('validates inputs and submits successfully', async () => {
-    vi.mocked(amen.createAmenity).mockResolvedValue(undefined as any)
+  vi.mocked(amen.createAmenity).mockResolvedValue({ id: 'am1', name: 'Pool', description: 'Outdoor pool' })
 
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/amenities/new' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/amenities/new' }]}>
         <Routes>
           <Route path="/amenities/new" element={<NewAmenityPage />} />
           <Route path="/accommodations" element={<div>Dash</div>} />

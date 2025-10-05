@@ -24,14 +24,14 @@ vi.mock('react-router-dom', async (importOriginal) => {
 })
 
 vi.mock('../../features/accommodations/navbar/HostNavbar.tsx', () => ({
-  default: ({ onSearch }: any) => (
-    <button onClick={() => onSearch({})}>Host Search</button>
+  default: ({ onSearch }: { onSearch?: (f: unknown) => void }) => (
+    <button onClick={() => onSearch?.({})}>Host Search</button>
   ),
 }))
 
 vi.mock('../../features/accommodations/navbar/GuestNavbar.tsx', () => ({
-  default: ({ onSearch }: any) => (
-    <button onClick={() => onSearch({})}>Guest Search</button>
+  default: ({ onSearch }: { onSearch?: (f: unknown) => void }) => (
+    <button onClick={() => onSearch?.({})}>Guest Search</button>
   ),
 }))
 

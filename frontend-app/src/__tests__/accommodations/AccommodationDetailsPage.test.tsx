@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import * as api from "../../features/accommodations/api/accommodationsApi";
+import type { AccommodationResponseDto } from "../../features/accommodations/api/accommodationsApi";
 import Details from "../../features/accommodations/pages/AccommodationDetailsPage";
 
 const navigate = vi.fn();
@@ -32,7 +33,7 @@ vi.mock("../../features/auth/api/authApi", () => ({
   getRole: vi.fn(() => "HOST"),
 }));
 
-const base = {
+const base: AccommodationResponseDto = {
   id: "a1",
   name: "Sample",
   location: { address: "Addr", city: "X", country: "Y", postalCode: "000" },
@@ -41,7 +42,7 @@ const base = {
   maxGuests: 4,
   autoConfirm: true,
   pricingMode: "FIXED",
-  amenities: [{ id: "am1", name: "Wifi" }],
+  amenities: [{ id: "am1", name: "Wifi", description: "" }],
   urlPhotos: ["p1.jpg"],
 };
 
@@ -65,7 +66,7 @@ describe("AccommodationDetailsPage", () => {
   });
 
   it("loads and renders host view, triggers all host buttons", async () => {
-    vi.mocked(api.fetchAccommodationById).mockResolvedValue(base as any);
+  vi.mocked(api.fetchAccommodationById).mockResolvedValue(base);
 
     render(
       <MemoryRouter initialEntries={["/accommodations/a1"]}>
@@ -94,7 +95,7 @@ describe("AccommodationDetailsPage", () => {
       ...base,
       urlPhotos: [],
       amenities: [],
-    } as any);
+    });
 
     const mod = await import("../../features/auth/api/authApi");
     vi.spyOn(mod, "getRole").mockReturnValue("GUEST");
@@ -131,7 +132,7 @@ describe("AccommodationDetailsPage", () => {
     vi.mocked(api.fetchAccommodationById).mockResolvedValue({
       ...base,
       autoConfirm: false,
-    } as any);
+    });
 
     render(
       <MemoryRouter initialEntries={["/accommodations/a1"]}>

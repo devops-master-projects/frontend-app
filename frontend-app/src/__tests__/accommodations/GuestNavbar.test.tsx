@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import React from 'react'
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -10,8 +11,8 @@ vi.mock('@mui/icons-material', () => ({
   Search: () => null,
 }))
 vi.mock('@mui/x-date-pickers', () => ({
-  LocalizationProvider: ({ children }: any) => children,
-  DatePicker: (props: any) => (
+  LocalizationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  DatePicker: (props: { label: string; onChange?: (d: Date | null) => void }) => (
     <input
       aria-label={props.label}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {

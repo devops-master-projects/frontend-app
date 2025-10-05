@@ -5,20 +5,20 @@ const mockSubscribe = vi.fn();
 const mockActivate = vi.fn();
 const mockDeactivate = vi.fn();
 
-let connectWebSocketCallback: ((msg: any) => void) | null = null;
-let delivered = false;
+type StompMessage = { body: string }
+let connectWebSocketCallback: ((msg: StompMessage) => void) | null = null;
 vi.mock('@stomp/stompjs', () => ({
   Client: class {
-    constructor(config?: any) {
+    constructor(config?: { onConnect?: () => void }) {
       // Intercept the onConnect callback and simulate subscription
       if (config && typeof config.onConnect === 'function') {
         setTimeout(() => {
           // Simulate subscription inside onConnect
-          config.onConnect();
+          config.onConnect?.();
         }, 0);
       }
     }
-    subscribe(path: string, cb: (msg: any) => void) {
+    subscribe(path: string, cb: (msg: StompMessage) => void) {
       mockSubscribe(path);
       connectWebSocketCallback = cb;
     }
@@ -46,13 +46,12 @@ describe('websocket', () => {
     mockActivate.mockClear();
     mockDeactivate.mockClear();
     connectWebSocketCallback = null;
-    delivered = false;
   });
 
   it('connectWebSocket subscribes and processes messages', async () => {
     const ws = await import('../../features/notifications/api/websocket')
 
-    const received: any[] = []
+  const received: Array<{ id: string; notifType: string; message: string; createdAt: string; read: boolean }> = []
     const messagePromise = new Promise<void>((resolve) => {
       ws.connectWebSocket('user-1', (n) => {
         received.push(n)

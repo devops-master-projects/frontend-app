@@ -2,28 +2,31 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import type { ReactElement } from 'react'
 import * as bookingApi from '../../features/booking/api/bookingApi'
 import * as accApi from '../../features/accommodations/api/accommodationsApi'
 import Page from '../../features/booking/pages/ReservationsCalendarPage'
+import type { AvailabilityResponseDto, ReservationRequestResponseDto } from '../../features/booking/api/bookingApi'
+import type { AccommodationResponseDto } from '../../features/accommodations/api/accommodationsApi'
 
 vi.mock('../../features/accommodations/navbar/GuestNavbar.tsx', () => ({ default: () => null }))
 
 // Mock calendar
 vi.mock('react-big-calendar', () => ({
-  Calendar: (props: any) => {
+  Calendar: (props: { onSelectSlot?: (slot: { start: Date; end: Date }) => void; onSelectEvent?: (event: unknown) => void }): ReactElement => {
     const { onSelectSlot, onSelectEvent } = props
     return (
       <div>
         <div>CalendarMock</div>
-        <button onClick={() => onSelectSlot && onSelectSlot({ start: new Date(2099,0,2), end: new Date(2099,0,4) } as any)}>select-slot-ok</button>
-        <button onClick={() => onSelectSlot && onSelectSlot({ start: new Date(2099,2,1), end: new Date(2099,2,2) } as any)}>select-slot-outside</button>
+        <button onClick={() => onSelectSlot && onSelectSlot({ start: new Date(2099,0,2), end: new Date(2099,0,4) })}>select-slot-ok</button>
+        <button onClick={() => onSelectSlot && onSelectSlot({ start: new Date(2099,2,1), end: new Date(2099,2,2) })}>select-slot-outside</button>
         <button onClick={() => onSelectEvent && onSelectEvent({ id: 'req1', title: 'Reservation request', start: new Date(2099,0,10), end: new Date(2099,0,11,23,59,59,999), allDay: true, resource: { status: 'PENDING' }, priceType: 'NORMAL', guestCount: 2 })}>select-pending</button>
         <button onClick={() => onSelectEvent && onSelectEvent({ id: 'res1', title: 'Your reservation!', start: new Date(2099,0,20), end: new Date(2099,0,21,23,59,59,999), allDay: true, resource: { status: 'APPROVED' }, priceType: 'NORMAL' })}>select-approved</button>
         <button onClick={() => onSelectEvent && onSelectEvent({ id: 'res2', title: 'Your reservation!', start: new Date(), end: new Date(), allDay: true, resource: { status: 'APPROVED' }, priceType: 'NORMAL' })}>select-approved-too-late</button>
       </div>
     )
   },
-  momentLocalizer: () => ({} as any),
+    momentLocalizer: () => ({} as unknown as never),
 }))
 
 vi.mock('../../features/booking/api/bookingApi.ts', () => ({
@@ -44,22 +47,22 @@ describe('ReservationsCalendarPage', () => {
     vi.clearAllMocks()
     // Availability: wide range to allow edits/creates: 2099-01-01 .. 2099-02-01
     vi.mocked(bookingApi.getAvailability).mockResolvedValue([
-      { id: 'a1', startDate: '2099-01-01', endDate: '2099-02-01', price: 50, priceType: 'NORMAL', status: 'AVAILABLE' },
-    ] as any)
+      { id: 'a1', accommodationId: 'abc', startDate: '2099-01-01', endDate: '2099-02-01', price: 50, priceType: 'NORMAL', status: 'AVAILABLE' },
+    ] as AvailabilityResponseDto[])
     // Requests: one PENDING (will be edited) and exclude REJECTED
     vi.mocked(bookingApi.getReservationRequestsByGuest).mockResolvedValue([
-      { id: 'req1', startDate: '2099-01-10', endDate: '2099-01-11', status: 'PENDING', guestCount: 2, connectedReservationCancelled: false },
-    ] as any)
-    vi.mocked(accApi.fetchAccommodationById).mockResolvedValue({ id: 'id', name: 'Acc', minGuests: 1, maxGuests: 4, description: '', urlPhotos: [], location: { country: '', city: '', address: '', postalCode: '' }, autoConfirm: false, pricingMode: 'FIXED', amenities: [] } as any)
-    vi.mocked(bookingApi.createReservationRequest).mockResolvedValue({ id: 'newReq', startDate: '2099-01-02', endDate: '2099-01-03', status: 'PENDING', guestCount: 1 } as any)
-    vi.mocked(bookingApi.updateReservationRequest).mockResolvedValue({ id: 'req1', startDate: '2099-01-10', endDate: '2099-01-11', status: 'PENDING', guestCount: 3 } as any)
-    vi.mocked(bookingApi.deleteReservationRequest).mockResolvedValue(undefined as any)
-    vi.mocked(bookingApi.cancelReservation).mockResolvedValue(undefined as any)
+      { id: 'req1', guestId: 'g', accommodationId: 'abc', startDate: '2099-01-10', endDate: '2099-01-11', status: 'PENDING', guestCount: 2, createdAt: '2099-01-01T00:00:00Z' },
+    ] as ReservationRequestResponseDto[])
+    vi.mocked(accApi.fetchAccommodationById).mockResolvedValue({ id: 'id', name: 'Acc', minGuests: 1, maxGuests: 4, description: '', urlPhotos: [], location: { country: '', city: '', address: '', postalCode: '' }, autoConfirm: false, pricingMode: 'FIXED', amenities: [] } as AccommodationResponseDto)
+    vi.mocked(bookingApi.createReservationRequest).mockResolvedValue({ id: 'newReq', guestId: 'g', accommodationId: 'abc', startDate: '2099-01-02', endDate: '2099-01-03', status: 'PENDING', guestCount: 1, createdAt: '2099-01-01T00:00:00Z' } as ReservationRequestResponseDto)
+    vi.mocked(bookingApi.updateReservationRequest).mockResolvedValue({ id: 'req1', guestId: 'g', accommodationId: 'abc', startDate: '2099-01-10', endDate: '2099-01-11', status: 'PENDING', guestCount: 3, createdAt: '2099-01-01T00:00:00Z' } as ReservationRequestResponseDto)
+    vi.mocked(bookingApi.deleteReservationRequest).mockResolvedValue(undefined)
+    vi.mocked(bookingApi.cancelReservation).mockResolvedValue(undefined)
   })
 
   it('creates a new reservation request from available days', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] as any}>
+    <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }]}>
         <Routes>
           <Route path="/booking/:id/reservations" element={<Page />} />
         </Routes>
@@ -77,7 +80,7 @@ describe('ReservationsCalendarPage', () => {
 
   it('edits a pending request guest count and deletes it', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] }>
         <Routes>
           <Route path="/booking/:id/reservations" element={<Page />} />
         </Routes>
@@ -105,7 +108,7 @@ describe('ReservationsCalendarPage', () => {
 
   it('cancels an approved reservation when allowed', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] }>
         <Routes>
           <Route path="/booking/:id/reservations" element={<Page />} />
         </Routes>
@@ -123,7 +126,7 @@ describe('ReservationsCalendarPage', () => {
 
   it('does not open reserve dialog when selected days are not all available', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] }>
         <Routes>
           <Route path="/booking/:id/reservations" element={<Page />} />
         </Routes>
@@ -141,7 +144,7 @@ describe('ReservationsCalendarPage', () => {
 
   it('does not update when edit date moves outside availability (branch returns)', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] }>
         <Routes>
           <Route path="/booking/:id/reservations" element={<Page />} />
         </Routes>
@@ -161,7 +164,7 @@ describe('ReservationsCalendarPage', () => {
 
   it('shows not allowed cancel state for an approved reservation too close to start', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }] as any}>
+  <MemoryRouter initialEntries={[{ pathname: '/booking/abc/reservations' }]}>
         <Routes>
           <Route path="/booking/:id/reservations" element={<Page />} />
         </Routes>
