@@ -1,7 +1,3 @@
-
-
-
-
 import {
     AppBar,
     Toolbar,
@@ -10,25 +6,17 @@ import {
     IconButton,
     Collapse,
     TextField,
-    Button,
-    Popover,
-    List,
-    ListItem, Switch, ListItemText, Tooltip
+    Button, Tooltip,
+
 } from "@mui/material";
-import {Link as RouterLink, useNavigate} from "react-router-dom";
-import {Home, Notifications, Search} from "@mui/icons-material";
-import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {Home, Search} from "@mui/icons-material";
+import {useState} from "react";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import type {ReactElement} from "react";
-import {
-    fetchNotificationSettings,
-    updateNotificationSetting
-} from "../../notifications/api/notificationsApi.ts";
-import type {NotificationSettingsDto} from "../../notifications/api/notificationsApi.ts";
-import LogoutIcon from "@mui/icons-material/Logout";
-import {logout} from "../../auth/api/authApi.ts";
-
+import LoginIcon from "@mui/icons-material/Login";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 type GuestNavBarProps = {
     onSearch?: (filters: {
         location: string;
@@ -41,14 +29,12 @@ type GuestNavBarProps = {
 };
 
 
-export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: GuestNavBarProps) {
+export default function Navbar({ onSearch, onHome, enableSearch = false }: GuestNavBarProps) {
     const [showSearch, setShowSearch] = useState(false);
     const [location, setLocation] = useState("");
     const [guests, setGuests] = useState(1);
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [settings, setSettings] = useState<NotificationSettingsDto[]>([]);
 
     const formatDate = (date: Date | null) => {
         if (!date) return undefined;
@@ -65,43 +51,14 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
         }
     };
     const navigate = useNavigate();
-    const handleLogout = () => {
-        logout();
-        navigate("/");
-    };
 
-    const handleToggle = (notifType: string) => {
-        setSettings((prev) =>
-            prev.map((s) =>
-                s.notifType === notifType ? { ...s, enabled: !s.enabled } : s
-            )
-        );
-
-        const updated = settings.find((s) => s.notifType === notifType);
-        if (updated) {
-            updateNotificationSetting(notifType, !updated.enabled)
-                .then((newSetting) => {
-                    console.log("Updated setting:", newSetting);
-                })
-                .catch((err) => {
-                    console.error("Failed to update setting", err);
-                });
-        }
-    };
-
-
-    useEffect(() => {
-        fetchNotificationSettings()
-            .then(setSettings)
-            .catch((err) => console.error("Failed to load notification settings", err));
-    }, []);
 
 
     const handleHomeClick = () => {
         if (onHome) {
-            onHome(); // koristi custom logiku iz AccommodationDashboard
+            onHome();
         } else {
-            navigate("/accommodations"); // fallback za sve druge stranice
+            navigate("/accommodations");
         }
     };
 
@@ -125,14 +82,6 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
                     >
                         <Home />
                     </IconButton>
-                    <Button
-                        component={RouterLink}
-                        to="/notifications"
-                        color="inherit"
-                        sx={{ fontWeight: 600 }}
-                    >
-                        Notifications
-                    </Button>
                 </Box>
                 <Typography
                     variant="h6"
@@ -158,44 +107,17 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
                             <Search />
                         </IconButton> as ReactElement
                     )}
-                    {/* Notifications dugme */}
-                    <IconButton
-                        color="inherit"
-                        onClick={(e) => setAnchorEl(e.currentTarget)}
-                    >
-                        <Notifications />
-                    </IconButton>
-                    <Tooltip title="Logout">
-                        <IconButton color="inherit" onClick={handleLogout}>
-                            <LogoutIcon />
+                    <Tooltip title="Log In">
+                        <IconButton color="inherit" onClick={() => navigate("/auth/login")}>
+                            <LoginIcon />
                         </IconButton>
                     </Tooltip>
-                    <Popover
-                        open={Boolean(anchorEl)}
-                        anchorEl={anchorEl}
-                        onClose={() => setAnchorEl(null)}
-                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                        transformOrigin={{ vertical: "top", horizontal: "right" }}
-                    >
-                        <List sx={{ minWidth: 250 }}>
-                            {settings.map((s) => (
-                                <ListItem
-                                    key={s.notifType}
-                                    secondaryAction={
-                                        <Switch
-                                            edge="end"
-                                            checked={s.enabled}
-                                            onChange={() => handleToggle(s.notifType)}
-                                        /> as ReactElement
-                                    }
-                                >
-                                    <ListItemText
-                                        primary={s.notifType.replaceAll("_", " ")}
-                                    />
-                                </ListItem> as ReactElement
-                            ))}
-                        </List>
-                    </Popover>
+
+                    <Tooltip title="Sign Up">
+                        <IconButton color="inherit" onClick={() => navigate("/auth/register")}>
+                            <PersonAddIcon />
+                        </IconButton>
+                    </Tooltip>
                 </Box>
 
             </Toolbar>
