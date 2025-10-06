@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-require-imports */
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import {render, screen, waitFor, within} from '@testing-library/react'
+
 import userEvent from '@testing-library/user-event'
 
 // Lightweight MUI stubs to avoid heavy imports and CSS
@@ -103,10 +105,12 @@ describe('ReviewsSection', () => {
     expect(screen.getByText('Other')).toBeInTheDocument()
 
   // Buttons should be present only for own review
+
     expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /Edit/i })).toHaveLength(1)
     expect(screen.getAllByRole('button', { name: /Delete/i })).toHaveLength(1)
+
 
   })
 
@@ -122,7 +126,9 @@ describe('ReviewsSection', () => {
     render(<ReviewsSection accommodationId="acc1" />)
     await screen.findByText(/Average Rating/i)
 
+
     await userEvent.click(screen.getByRole('button', { name: /Edit/i }))
+
 
     expect(navigateMock).toHaveBeenCalledWith('/accommodations/acc1/reviews/r1/edit')
   })
@@ -157,10 +163,12 @@ describe('ReviewsSection', () => {
     expect(screen.getByText(/Confirm Delete/i)).toBeInTheDocument()
 
     // Confirm delete
+
     const dialog = screen.getByRole('dialog')
     await userEvent.click(
         within(dialog).getByRole('button', { name: /^Delete$/i })
     )
+
 
   await waitFor(() => expect(apiMocks.deleteReview).toHaveBeenCalledWith('r1'))
     // List refreshed: only "Other" remains, and average updated
