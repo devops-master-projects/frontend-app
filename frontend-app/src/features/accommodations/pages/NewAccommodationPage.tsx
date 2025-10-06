@@ -34,7 +34,7 @@ export default function NewAccommodationPage() {
         maxGuests: 1,
         description: "",
         autoConfirm: false,
-        pricingMode: "FIXED",
+        pricingMode: "PER_PERSON",
         photos: [],
         amenities: []
     });
@@ -232,7 +232,6 @@ export default function NewAccommodationPage() {
                                     helperText={errors.pricingMode}
                                     onChange={(e) => handleChange("pricingMode", e.target.value)}
                                 >
-                                    <MenuItem value="FIXED">Fixed</MenuItem>
                                     <MenuItem value="PER_NIGHT">Per Night</MenuItem>
                                     <MenuItem value="PER_PERSON">Per Person</MenuItem>
                                 </TextField>
