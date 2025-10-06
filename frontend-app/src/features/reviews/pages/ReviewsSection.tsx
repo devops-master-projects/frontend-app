@@ -108,13 +108,20 @@
                                 {currentGuestId === r.guestId && (
                                     <Box sx={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 1 }}>
                                         <IconButton
+                                            aria-label="Edit"
                                             size="small"
                                             color="primary"
                                             onClick={() => handleEdit(r.id)}
                                         >
                                             <EditIcon fontSize="small" />
                                         </IconButton>
-                                        <IconButton onClick={() => handleOpenDelete(r.id)} color="error" size="small">
+
+                                        <IconButton
+                                            aria-label="Delete"
+                                            onClick={() => handleOpenDelete(r.id)}
+                                            color="error"
+                                            size="small"
+                                        >
                                             <DeleteIcon />
                                         </IconButton>
 
