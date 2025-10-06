@@ -121,6 +121,7 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                     <IconButton
                         color="inherit"
                         onClick={handleHomeClick}
+                        data-testid="host-navbar-home"
                         sx={{ fontWeight: 600 }}
                     >
                         <Home />
@@ -161,6 +162,7 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                         <IconButton
                             color="inherit"
                             onClick={() => setShowSearch((prev) => !prev)}
+                            data-testid="host-navbar-toggle-search"
                         >
                             <Search />
                         </IconButton>  as ReactElement
@@ -169,6 +171,7 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                     <IconButton
                         color="inherit"
                         onClick={(e) => setAnchorEl(e.currentTarget)}
+                        data-testid="host-navbar-open-notifications"
                     >
                         <Notifications />
                     </IconButton>
@@ -210,47 +213,47 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
 
             {/* Search forma koja se pojavi ispod */}
             {enableSearch && (
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <Collapse in={showSearch} timeout="auto" unmountOnExit>
-                        <Box
-                            sx={{
-                                p: 2,
-                                backgroundColor: "background.default",
-                                display: "flex",
-                                gap: 2,
-                                alignItems: "center",
-                            }}
-                        >
-                            <TextField
-                                label="Location"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                            />
-                            <TextField
-                                type="number"
-                                label="Guests"
-                                value={guests}
-                                onChange={(e) => setGuests(Number(e.target.value))}
-                                sx={{ width: 120 }}
-                            />
-                            <DatePicker
-                                label="Start Date"
-                                value={startDate}
-                                onChange={setStartDate}
-                                slotProps={{ textField: { sx: { minWidth: 160 } } }}
-                            />
-                            <DatePicker
-                                label="End Date"
-                                value={endDate}
-                                onChange={setEndDate}
-                                slotProps={{ textField: { sx: { minWidth: 160 } } }}
-                            />
-                            <Button variant="contained" onClick={handleSearch}>
-                                Search
-                            </Button>
-                        </Box>
-                    </Collapse>
-                </LocalizationProvider>) as ReactElement
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Collapse in={showSearch} timeout="auto" unmountOnExit>
+                    <Box
+                        sx={{
+                            p: 2,
+                            backgroundColor: "background.default",
+                            display: "flex",
+                            gap: 2,
+                            alignItems: "center",
+                        }}
+                    >
+                        <TextField
+                            label="Location"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                        />
+                        <TextField
+                            type="number"
+                            label="Guests"
+                            value={guests}
+                            onChange={(e) => setGuests(Number(e.target.value))}
+                            sx={{ width: 120 }}
+                        />
+                        <DatePicker
+                            label="Start Date"
+                            value={startDate}
+                            onChange={setStartDate}
+                            slotProps={{ textField: { sx: { minWidth: 160 } } }}
+                        />
+                        <DatePicker
+                            label="End Date"
+                            value={endDate}
+                            onChange={setEndDate}
+                            slotProps={{ textField: { sx: { minWidth: 160 } } }}
+                        />
+                        <Button variant="contained" onClick={handleSearch} data-testid="host-navbar-submit-search">
+                            Search
+                        </Button>
+                    </Box>
+                </Collapse>
+            </LocalizationProvider>) as ReactElement
             }
         </AppBar>
     );
