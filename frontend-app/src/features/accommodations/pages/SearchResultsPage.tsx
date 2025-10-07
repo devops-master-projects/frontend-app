@@ -15,6 +15,7 @@ import {searchAccommodations} from "../api/accommodationsApi";
 import {useState} from "react";
 import GuestNavbar from "../navbar/GuestNavbar.tsx";
 import {getRole} from "../../auth/api/authApi.ts";
+import Navbar from "../navbar/Navbar.tsx";
 
 export default function SearchResultsPage() {
     const location = useLocation();
@@ -41,6 +42,19 @@ export default function SearchResultsPage() {
         }
             {role === "GUEST" &&
                 <GuestNavbar
+                    enableSearch={true}
+                    onSearch={async (filters) => {
+                        try {
+                            const newResults = await searchAccommodations(filters);
+                            setResults(newResults);
+                        } catch (err) {
+                            console.error("Error while searching from results page:", err);
+                        }
+                    }}
+                />
+            }
+            {role === "" &&
+                <Navbar
                     enableSearch={true}
                     onSearch={async (filters) => {
                         try {

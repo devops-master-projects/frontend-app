@@ -1,7 +1,3 @@
-
-
-
-
 import {
     AppBar,
     Toolbar,
@@ -28,6 +24,7 @@ import {
 import type {NotificationSettingsDto} from "../../notifications/api/notificationsApi.ts";
 import LogoutIcon from "@mui/icons-material/Logout";
 import {logout} from "../../auth/api/authApi.ts";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
 type GuestNavBarProps = {
     onSearch?: (filters: {
@@ -68,6 +65,10 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
     const handleLogout = () => {
         logout();
         navigate("/");
+    };
+
+    const handleGoToProfile = () => {
+        navigate("/auth/profile");
     };
 
     const handleToggle = (notifType: string) => {
@@ -161,12 +162,20 @@ export default function GuestNavbar({ onSearch, onHome, enableSearch = false }: 
                         </IconButton> as ReactElement
                     )}
                     {/* Notifications dugme */}
+                    <Tooltip title="Nofitications settings">
                     <IconButton
                         color="inherit"
                         onClick={(e) => setAnchorEl(e.currentTarget)}
                     >
                         <Notifications />
                     </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="My Account">
+                        <IconButton color="inherit" onClick={handleGoToProfile}>
+                            <ManageAccountsIcon />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Logout">
                         <IconButton color="inherit" onClick={handleLogout}>
                             <LogoutIcon />

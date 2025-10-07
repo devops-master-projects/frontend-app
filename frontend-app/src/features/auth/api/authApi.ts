@@ -271,3 +271,23 @@ export async function getHostProfile(hostId: string): Promise<HostProfile> {
 
   return res.json();
 }
+
+export async function deleteAccount(): Promise<void> {
+  const res = await authFetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/delete-account`,
+      {
+        method: "DELETE",
+      }
+  );
+
+  if (!res.ok) {
+    const txt = await res.text();
+    if (res.status === 404) {
+      throw new Error(txt || "User not found.");
+    } else if (res.status === 401) {
+      throw new Error(txt || "Unauthorized. Please log in again.");
+    } else {
+      throw new Error(txt || `Failed to delete account (HTTP ${res.status})`);
+    }
+  }
+}

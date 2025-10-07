@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState} from 'react';
 import {
   Box,
   Paper,
@@ -11,23 +11,40 @@ import {
   Divider,
   Tabs,
   Tab,
-  useTheme,
+  useTheme, Popover,
 } from '@mui/material';
-
+import type {ReactElement} from "react";
 import {
   getProfile,
   updateProfile,
   changeCredentials,
   type UpdateProfileRequest,
-  type ChangeCredentialsRequest,
+  type ChangeCredentialsRequest, deleteAccount, getRole,
 } from '../api/authApi';
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import HostNavbar from "../../accommodations/navbar/HostNavbar.tsx";
+import GuestNavbar from "../../accommodations/navbar/GuestNavbar.tsx";
 
 export default function Profile() {
   const theme = useTheme();
+  const role : string = getRole();
 
   const [tab, setTab] = useState<'profile' | 'credentials'>('profile');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [deleteAnchorEl, setDeleteAnchorEl] = useState<HTMLElement | null>(null);
+  const openDeletePopover = Boolean(deleteAnchorEl);
+
+  const handleOpenDelete = (event: React.MouseEvent<HTMLElement>) => {
+    setDeleteAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseDelete = () => {
+    setDeleteAnchorEl(null);
+  };
 
   const [profile, setProfile] = useState<UpdateProfileRequest>({
     firstName: '',
@@ -47,6 +64,7 @@ export default function Profile() {
     (async () => {
       try {
         const data = await getProfile();
+        console.log("data: " + data.firstName)
         if (!cancelled) {
           setProfile((p) => ({
             ...p,
@@ -64,6 +82,39 @@ export default function Profile() {
       cancelled = true;
     };
   }, []);
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeleteError(null);
+      setDeleting(true);
+      await deleteAccount();
+      localStorage.clear();
+
+      // @ts-ignore
+      if (typeof window !== "undefined" && !window.__vitest__) {
+        window.location.href = "/";
+      }
+    } catch (error: unknown) {
+      let message = "An unexpected error occurred.";
+
+      if (error instanceof Error) {
+        try {
+          const parsed = JSON.parse(error.message);
+          if (parsed.error) {
+            const match = parsed.error.match(/"(.*?)"$/);
+            message = match ? match[1] : parsed.error;
+          }
+        } catch {
+          message = error.message;
+        }
+      }
+      setDeleteError(message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
 
   async function onSaveProfile(e: React.FormEvent) {
     e.preventDefault();
@@ -120,6 +171,9 @@ export default function Profile() {
   }
 
   return (
+      <>
+        {role === "HOST" && <HostNavbar /> as ReactElement}
+        {role === "GUEST" && <GuestNavbar /> as ReactElement}
     <Box
       sx={{
         minHeight: '100dvh',
@@ -232,6 +286,26 @@ export default function Profile() {
                   >
                     {saving ? 'Saving…' : 'Save changes'}
                   </Button>
+                  <Button
+                      variant="contained"
+                      disabled={deleting}
+                      color="error"
+                      startIcon={deleting ? <CircularProgress size={18} /> : null}
+                      onClick={handleOpenDelete}
+                      sx={{
+                        mt: 1,
+                        ml: 2,
+                        py: 1.25,
+                        fontWeight: 600,
+                        color: "primary.contrastText",
+                        bgcolor: theme.palette.error.main,
+                        "&:hover": { bgcolor: theme.palette.error.dark },
+                      }}
+                  >
+                    {deleting ? "Deleting…" : "Delete account"}
+                  </Button>
+
+
                 </Box>
               </Stack>
             </Box>
@@ -288,7 +362,51 @@ export default function Profile() {
             </Box>
           )}
         </Stack>
+        <Popover
+            open={openDeletePopover}
+            disablePortal={process.env.NODE_ENV === 'test'}
+            anchorEl={deleteAnchorEl}
+            keepMounted={false}
+            transitionDuration={0}
+            onClose={handleCloseDelete}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <Box sx={{ p: 2, maxWidth: 260 }}>
+            <Box display="flex" alignItems="center" gap={1} mb={1}>
+              <WarningAmberIcon color="error" />
+              <Typography variant="subtitle1" fontWeight={600}>
+                Delete Account
+              </Typography>
+            </Box>
+
+            <Typography variant="body2" color="text.secondary" mb={2}>
+              Are you sure you want to permanently delete your account? This action cannot be undone.
+            </Typography>
+
+            {deleteError && (
+                <Typography variant="body2" color="error" sx={{ mt: 1, mb: 1 }}>
+                  {deleteError}
+                </Typography>
+            )}
+
+            <Box display="flex" justifyContent="space-between">
+              <Button variant="outlined" onClick={handleCloseDelete}>
+                Cancel
+              </Button>
+              <Button
+                  variant="contained"
+                  color="error"
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+              >
+                {deleting ? "Deleting…" : "Delete"}
+              </Button>
+            </Box>
+          </Box>
+        </Popover>
       </Paper>
     </Box>
+        </>
   );
 }

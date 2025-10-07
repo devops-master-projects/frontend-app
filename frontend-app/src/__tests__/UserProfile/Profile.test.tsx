@@ -1,15 +1,65 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { getProfile, updateProfile, changeCredentials } from '../../features/auth/api/authApi';
-import Profile from '../../features/auth/pages/Profile';
+
+vi.mock('@mui/material', async () => {
+  const actual = await vi.importActual('@mui/material');
+  return {
+    ...actual,
+    Popover: (props: { open?: boolean; children?: React.ReactNode }) =>
+        props.open ? <div data-testid="mock-popover">{props.children}</div> : null,
+  };
+});
+
+vi.mock("@mui/base/FocusTrap", () => ({
+  __esModule: true,
+  default: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+}));
+
+declare global { interface Window { __vitest__?: boolean; } }
+window.__vitest__ = true;
+process.env.NODE_ENV = 'test';
 
 vi.mock('../../features/auth/api/authApi', () => ({
   getProfile: vi.fn(),
   updateProfile: vi.fn(),
   changeCredentials: vi.fn(),
+  deleteAccount: vi.fn(),
+  getRole: vi.fn(() => 'GUEST'), // ✅ dodaj ovo
 }));
+
 vi.setConfig({ testTimeout: 15000 })
+
+const mockNavigate = vi.fn()
+
+vi.mock("../../features/accommodations/navbar/HostNavbar.tsx", () => ({
+  default: () => <div data-testid="host-navbar" />,
+}));
+vi.mock("../../features/accommodations/navbar/GuestNavbar.tsx", () => ({
+  default: () => <div data-testid="guest-navbar" />,
+}));
+vi.mock('@mui/base/FocusTrap', () => ({
+  __esModule: true,
+  default: ({ children }: unknown) => <>{children}</>,
+}));
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
+
+import React from "react";
+
+import Profile from '../../features/auth/pages/Profile';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {render, screen, waitFor, within, fireEvent, cleanup} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {getProfile, updateProfile, changeCredentials, deleteAccount} from '../../features/auth/api/authApi';
+
+beforeEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 
 describe('Profile component', () => {
@@ -195,5 +245,74 @@ describe('Profile component', () => {
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent(/forbidden/i);
+  });
+
+  it('opens popover and calls deleteAccount successfully', async () => {
+    vi.mocked(getProfile).mockResolvedValue({
+      firstName: '',
+      lastName: '',
+      email: '',
+      address: '',
+    });
+    vi.mocked(deleteAccount).mockResolvedValue();
+
+    render(<Profile />);
+
+    const deleteButton = screen.getByRole('button', { name: /delete account/i });
+    fireEvent.click(deleteButton);
+
+    const popover = await screen.findByTestId("mock-popover");
+    expect(within(popover).getByText(/delete account/i)).toBeInTheDocument();
+
+    const confirmBtn = screen.getByRole('button', { name: /^delete$/i });
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      expect(deleteAccount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('shows error message when deleteAccount fails', async () => {
+    vi.mocked(getProfile).mockResolvedValue({
+      firstName: '',
+      lastName: '',
+      email: '',
+      address: '',
+    });
+    vi.mocked(deleteAccount).mockRejectedValue(new Error('Failed to delete account'));
+
+    render(<Profile />);
+
+    fireEvent.click(screen.getByRole('button', { name: /delete account/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    expect(await screen.findByText(/delete account/i)).toBeInTheDocument();
+  });
+
+  it('does not redirect when running under Vitest (window.__vitest__)', async () => {
+    vi.mocked(getProfile).mockResolvedValue({
+      firstName: '',
+      lastName: '',
+      email: '',
+      address: '',
+    });
+    vi.mocked(deleteAccount).mockResolvedValue();
+
+    const originalLocation = window.location;
+    // @ts-ignore
+    delete (window as unknown).location;
+    (window as unknown).location = { href: '' };
+
+    render(<Profile />);
+
+    fireEvent.click(screen.getByRole('button', { name: /delete account/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+
+    await waitFor(() => {
+      expect(deleteAccount).toHaveBeenCalledTimes(1);
+    });
+
+    expect(window.location.href).toBe('');
+
+    window.location = originalLocation;
   });
 });

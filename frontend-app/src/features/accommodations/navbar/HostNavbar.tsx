@@ -38,6 +38,7 @@ type HostNavbarProps = {
 };
 import LogoutIcon from "@mui/icons-material/Logout";
 import {logout} from "../../auth/api/authApi.ts";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 export default function HostNavbar({ onSearch, onHome, enableSearch = false }: HostNavbarProps) {
     const [showSearch, setShowSearch] = useState(false);
     const [location, setLocation] = useState("");
@@ -53,6 +54,11 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
         if (!date) return undefined;
         return date.toLocaleDateString("sv-SE"); // yyyy-MM-dd format
     };
+
+    const handleGoToProfile = () => {
+        navigate("/auth/profile");
+    };
+
 
     const handleSearch = () => {
         if (onSearch) {
@@ -175,7 +181,11 @@ export default function HostNavbar({ onSearch, onHome, enableSearch = false }: H
                     >
                         <Notifications />
                     </IconButton>
-
+                    <Tooltip title="My Account">
+                        <IconButton color="inherit" onClick={handleGoToProfile}>
+                            <ManageAccountsIcon />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Logout">
                         <IconButton color="inherit" onClick={handleLogout}>
                             <LogoutIcon />
