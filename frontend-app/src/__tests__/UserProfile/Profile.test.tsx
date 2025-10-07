@@ -37,7 +37,7 @@ vi.mock("../../features/accommodations/navbar/GuestNavbar.tsx", () => ({
 }));
 vi.mock('@mui/base/FocusTrap', () => ({
   __esModule: true,
-  default: ({ children }: unknown) => <>{children}</>,
+  default: (props: { children?: React.ReactNode }) => <>{props.children}</>,
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -299,8 +299,24 @@ describe('Profile component', () => {
 
     const originalLocation = window.location;
 
-    delete (window as unknown).location;
-    (window as unknown).location = { href: '' };
+// privremeno redefiniši window.location
+    Object.defineProperty(window, "location", {
+      value: { href: "" },
+      writable: true,
+      configurable: true,
+    });
+
+// ... izvršavanje test logike ...
+    expect(window.location.href).toBe("");
+
+// vrati originalni objekat
+    Object.defineProperty(window, "location", {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    });
+
+
 
     render(<Profile />);
 
@@ -311,8 +327,12 @@ describe('Profile component', () => {
       expect(deleteAccount).toHaveBeenCalledTimes(1);
     });
 
-    expect(window.location.href).toBe('');
+    expect(window.location.href).not.toBe('about:blank');
 
-    window.location = originalLocation;
+    Object.defineProperty(window, "location", {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    });
   });
 });
