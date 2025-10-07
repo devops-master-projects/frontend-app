@@ -90,7 +90,6 @@ export default function Profile() {
       await deleteAccount();
       localStorage.clear();
 
-      // @ts-ignore
       if (typeof window !== "undefined" && !window.__vitest__) {
         window.location.href = "/";
       }

@@ -298,7 +298,7 @@ describe('Profile component', () => {
     vi.mocked(deleteAccount).mockResolvedValue();
 
     const originalLocation = window.location;
-    // @ts-ignore
+
     delete (window as unknown).location;
     (window as unknown).location = { href: '' };
 
