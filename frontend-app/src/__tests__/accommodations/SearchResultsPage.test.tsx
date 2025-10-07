@@ -35,6 +35,13 @@ vi.mock('../../features/accommodations/navbar/GuestNavbar.tsx', () => ({
   ),
 }))
 
+vi.mock('../../features/accommodations/navbar/Navbar.tsx', () => ({
+    default: ({ onSearch }: { onSearch?: (f: unknown) => void }) => (
+        <button onClick={() => onSearch?.({})}>Search</button>
+    ),
+}))
+
+
 describe('SearchResultsPage', () => {
   const mockNavigate = vi.fn()
   const mockSearch = vi.mocked(searchAccommodations)
