@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import * as api from '../../features/accommodations/api/accommodationsApi'
@@ -21,7 +21,7 @@ describe('NewAccommodationPage', () => {
   beforeAll(() => {
     // Suppress specific console errors that are expected in tests
     const originalError = console.error;
-    vi.spyOn(console, 'error').mockImplementation((...args: any[]) => {
+    vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
       const msg = String(args[0] || '');
       // Suppress act warnings and AggregateError messages
       if (msg.includes('act') ||
