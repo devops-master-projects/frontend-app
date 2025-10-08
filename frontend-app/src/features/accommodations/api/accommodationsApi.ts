@@ -256,11 +256,15 @@ export interface SearchRequest {
 export async function searchAccommodations(
     req: SearchRequest
 ): Promise<SearchResponse[]> {
-    const res = await fetch(`${import.meta.env.VITE_SEARCH_API_URL}/api/search`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req),
-    });
+    const baseUrl = import.meta.env.VITE_SEARCH_API_URL;
+
+    const params = new URLSearchParams();
+    if (req.location) params.append("location", req.location);
+    if (req.guests) params.append("guests", req.guests.toString());
+    if (req.startDate) params.append("startDate", req.startDate);
+    if (req.endDate) params.append("endDate", req.endDate);
+
+    const res = await fetch(`${baseUrl}/api/search?${params.toString()}`);
 
     if (!res.ok) {
         const text = await res.text();
