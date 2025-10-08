@@ -6,6 +6,7 @@ import type { AccommodationResponseDto } from '../../features/accommodations/api
 import type { AmenityResponseDto } from '../../features/accommodations/api/amenitiesApi'
 import * as amen from '../../features/accommodations/api/amenitiesApi'
 import EditPage from '../../features/accommodations/pages/EditAccommodationPage'
+import { act } from '@testing-library/react'
 
 vi.mock('../../features/accommodations/navbar/HostNavbar.tsx', () => ({ default: () => null }))
 vi.mock('../../features/accommodations/api/accommodationsApi', () => ({
@@ -32,42 +33,46 @@ const existing: AccommodationResponseDto = {
   amenities: [{ id: 'am1', name: 'Wifi', description: '' }],
 }
 
+beforeEach(() => {
+  vi.clearAllMocks()
+  vi.mocked(amen.fetchAmenities).mockResolvedValue([
+    { id: 'am1', name: 'Wifi', description: '' },
+  ] as AmenityResponseDto[])
+
+  // ✅ Samo dodaj createObjectURL ako ne postoji
+  if (!global.URL.createObjectURL) {
+    global.URL.createObjectURL = vi.fn(() => 'blob://test')
+  }
+})
+
 describe('EditAccommodationPage', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(amen.fetchAmenities).mockResolvedValue([{ id: 'am1', name: 'Wifi', description: '' }] as AmenityResponseDto[])
-    // JSDOM doesn’t have URL.createObjectURL
-    Object.defineProperty(global, 'URL', {
-      value: {
-        createObjectURL: vi.fn(() => 'blob://test') as (blob: Blob) => string,
-      },
-      writable: true,
-    })
-  })
 
   it('loads data, allows adding a photo and updates accommodation', async () => {
-  vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing)
+    vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing)
     vi.mocked(api.uploadPhotoToCloudinary).mockResolvedValue('http://img/new.jpg')
-  vi.mocked(api.updateAccommodation).mockResolvedValue(existing)
+    vi.mocked(api.updateAccommodation).mockResolvedValue(existing)
 
-    render(
-      <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
-        <Routes>
-          <Route path="/accommodations/:id/edit" element={<EditPage />} />
-          <Route path="/accommodations/a1" element={<div>Details</div>} />
-        </Routes>
-      </MemoryRouter>
-    )
+    await act(async () => {
+      render(
+          <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
+            <Routes>
+              <Route path="/accommodations/:id/edit" element={<EditPage />} />
+              <Route path="/accommodations/a1" element={<div>Details</div>} />
+            </Routes>
+          </MemoryRouter>
+      )
+    })
 
-    // Wait for accommodation to load
+    await waitFor(() => expect(api.fetchAccommodationById).toHaveBeenCalled())
+    await new Promise((r) => setTimeout(r, 0)); // 🚀 da useEffect završi potpuno
+
+
     expect(await screen.findByDisplayValue(/casa/i)).toBeInTheDocument()
 
-    // Add a new file to upload
     const file = new File(['x'], 'p.jpg', { type: 'image/jpeg' })
     const input = screen.getByText(/drag & drop/i).parentElement!.querySelector('input') as HTMLInputElement
     fireEvent.change(input, { target: { files: [file] } })
 
-    // Submit form
     fireEvent.click(screen.getByRole('button', { name: /update accommodation/i }))
 
     await waitFor(() => expect(api.uploadPhotoToCloudinary).toHaveBeenCalled())
@@ -82,24 +87,28 @@ describe('EditAccommodationPage', () => {
     expect(await screen.findByText(/updated successfully/i)).toBeInTheDocument()
   })
 
+
+
+
+
   it('shows validation errors if required fields are empty', async () => {
-  vi.mocked(api.fetchAccommodationById).mockResolvedValue({ ...existing, name: '' })
+    vi.mocked(api.fetchAccommodationById).mockResolvedValue({ ...existing, name: '' })
 
     render(
-      <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
-        <Routes>
-          <Route path="/accommodations/:id/edit" element={<EditPage />} />
-        </Routes>
-      </MemoryRouter>
+        <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
+          <Routes>
+            <Route path="/accommodations/:id/edit" element={<EditPage />} />
+          </Routes>
+        </MemoryRouter>
     )
 
-    // Wait for preloaded form
-    await screen.findByLabelText(/name/i)
+    await waitFor(() => expect(api.fetchAccommodationById).toHaveBeenCalled())
 
-    // Click update → triggers validation
+    expect(await screen.findByLabelText(/name/i)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /update accommodation/i }))
     expect(await screen.findByText(/name is required/i)).toBeInTheDocument()
   })
+
 
   it('removes an existing photo and preserves remaining photos on submit', async () => {
   vi.mocked(api.fetchAccommodationById).mockResolvedValue({ ...existing, urlPhotos: ['one.jpg', 'two.jpg'] })
@@ -113,6 +122,9 @@ describe('EditAccommodationPage', () => {
         </Routes>
       </MemoryRouter>
     )
+
+    await waitFor(() => expect(api.fetchAccommodationById).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 0));
 
     // Wait for loaded form
     await screen.findByDisplayValue(/casa/i)
@@ -129,26 +141,28 @@ describe('EditAccommodationPage', () => {
     expect(payload.photos).toEqual(['two.jpg']) // only remaining one
   })
 
+
+
   it('covers all handler functions explicitly', async () => {
-  vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing)
-  vi.mocked(api.updateAccommodation).mockResolvedValue(existing)
+    vi.mocked(api.fetchAccommodationById).mockResolvedValue(existing)
+    vi.mocked(api.updateAccommodation).mockResolvedValue(existing)
     vi.mocked(api.uploadPhotoToCloudinary).mockResolvedValue('http://img/new.jpg')
 
     render(
-  <MemoryRouter initialEntries={[{ pathname: '/accommodations/a1/edit' }] }>
-        <Routes>
+        <MemoryRouter initialEntries={['/accommodations/a1/edit']}>
+          <Routes>
             <Route path="/accommodations/:id/edit" element={<EditPage />} />
-        </Routes>
+          </Routes>
         </MemoryRouter>
     )
 
-    // Wait for data to load
+    await waitFor(() => expect(api.fetchAccommodationById).toHaveBeenCalled())
     const nameInput = await screen.findByDisplayValue(/casa/i)
 
     // handleChange
     fireEvent.change(nameInput, { target: { value: 'New name' } })
 
-    // handleLocationChange for each location field
+    // handleLocationChange
     fireEvent.change(screen.getByLabelText(/country/i), { target: { value: 'Serbia' } })
     fireEvent.change(screen.getByLabelText(/city/i), { target: { value: 'Belgrade' } })
     fireEvent.change(screen.getByLabelText(/address/i), { target: { value: 'Main St' } })
@@ -161,14 +175,15 @@ describe('EditAccommodationPage', () => {
         .parentElement!.querySelector('input') as HTMLInputElement
     fireEvent.change(fileInput, { target: { files: { 0: file, length: 1, item: () => file } } })
 
-  // handleChange (min/max guests)
-  fireEvent.change(screen.getByLabelText(/min guests/i), { target: { value: '2' } })
-  fireEvent.change(screen.getByLabelText(/max guests/i), { target: { value: '4' } })
-  // handleChange (pricing mode) via MUI Select interaction
-  const pricingSelect = screen.getByRole('combobox', { name: /pricing mode/i })
-  fireEvent.mouseDown(pricingSelect)
-  const perNight = await screen.findByRole('option', { name: /per night/i })
-  fireEvent.click(perNight)
+    // handleChange (min/max guests)
+    fireEvent.change(screen.getByLabelText(/min guests/i), { target: { value: '2' } })
+    fireEvent.change(screen.getByLabelText(/max guests/i), { target: { value: '4' } })
+
+    // handleChange (pricing mode)
+    const pricingSelect = screen.getByRole('combobox', { name: /pricing mode/i })
+    fireEvent.mouseDown(pricingSelect)
+    const perNight = await screen.findByRole('option', { name: /per night/i })
+    fireEvent.click(perNight)
 
     // handleChange (description)
     fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Nice place' } })
@@ -176,18 +191,18 @@ describe('EditAccommodationPage', () => {
     // handleChange (autoConfirm toggle)
     fireEvent.click(screen.getByLabelText(/auto confirm/i))
 
-    // Remove local photo (cover setLocalPhotos)
+    // Remove local photo (covers setLocalPhotos)
     await waitFor(() => {
-        const removeBtns = screen.getAllByRole('button', { name: '✕' })
-        fireEvent.click(removeBtns[removeBtns.length - 1])
+      const removeBtns = screen.getAllByRole('button', { name: '✕' })
+      fireEvent.click(removeBtns[removeBtns.length - 1])
     })
 
-    // Submit (cover success + loading flow)
+    // Submit (covers handleSubmit success path)
     fireEvent.click(screen.getByRole('button', { name: /update accommodation/i }))
     await waitFor(() => expect(api.updateAccommodation).toHaveBeenCalled())
 
-    // Snackbar should show (covers success state)
+    // Snackbar (success message)
     expect(await screen.findByText(/updated successfully/i)).toBeInTheDocument()
-    })
+  })
 
 })

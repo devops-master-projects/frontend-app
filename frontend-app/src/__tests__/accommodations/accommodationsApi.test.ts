@@ -114,17 +114,44 @@ describe('accommodationsApi', () => {
     await expect(api.updateAccommodation('a1', req)).rejects.toThrow(/Bad/i)
   })
 
-  it('searchAccommodations posts search request and returns results; throws on error', async () => {
-    const results = [{ id: '1', name: 'House', description: '', location: { country: 'c', city: 'ci', address: '', postalCode: '' }, photos: [], amenities: [], minGuests: 1, maxGuests: 2, totalPrice: 100, unitPrice: 100, pricingMode: 'PER_NIGHT' }]
-    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(results) })
-    const got = await api.searchAccommodations({ location: 'ci', guests: 2 })
-    expect(got).toEqual(results)
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      `${VITE_SEARCH_API_URL}/api/search`,
-      expect.objectContaining({ method: 'POST' })
-    )
+  it('searchAccommodations fetches with GET and returns results; throws on error', async () => {
+    const results = [
+      {
+        id: '1',
+        name: 'House',
+        description: '',
+        location: { country: 'c', city: 'ci', address: '', postalCode: '' },
+        photos: [],
+        amenities: [],
+        minGuests: 1,
+        maxGuests: 2,
+        totalPrice: 100,
+        unitPrice: 100,
+        pricingMode: 'PER_NIGHT'
+      }
+    ];
 
-    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, text: () => Promise.resolve('Server') })
-    await expect(api.searchAccommodations({ location: 'ci', guests: 2 })).rejects.toThrow(/Server|HTTP 500/)
-  })
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(results)
+    });
+
+    const got = await api.searchAccommodations({ location: 'ci', guests: 2 });
+
+    expect(got).toEqual(results);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+        `${VITE_SEARCH_API_URL}/api/search?location=ci&guests=2`
+    );
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      text: () => Promise.resolve('Server')
+    });
+
+    await expect(api.searchAccommodations({ location: 'ci', guests: 2 }))
+        .rejects
+        .toThrow(/Server|HTTP 500/);
+  });
+
 })
