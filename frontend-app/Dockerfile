@@ -1,0 +1,36 @@
+# ====== BUILD ======
+FROM node:20-bullseye AS build
+WORKDIR /app
+
+# Build arguments
+ARG VITE_API_URL=/api/identity
+ARG VITE_ACCOMMODATION_API_URL=/api/accommodations
+ARG VITE_BOOKING_API_URL=/api/bookings
+ARG VITE_SEARCH_API_URL=/api/search
+ARG VITE_NOTIFICATION_API_URL=/api/notifications
+ARG VITE_CLOUDINARY_CLOUD_NAME=dok1mjki6
+ARG VITE_CLOUDINARY_UPLOAD_PRESET=frontend_upload
+
+# Instaliraj deps
+COPY package*.json ./
+RUN npm ci
+
+# Kopiraj app i build sa ARG vrednostima
+COPY . .
+ENV NODE_ENV=production
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_ACCOMMODATION_API_URL=${VITE_ACCOMMODATION_API_URL}
+ENV VITE_BOOKING_API_URL=${VITE_BOOKING_API_URL}
+ENV VITE_SEARCH_API_URL=${VITE_SEARCH_API_URL}
+ENV VITE_NOTIFICATION_API_URL=${VITE_NOTIFICATION_API_URL}
+ENV VITE_CLOUDINARY_CLOUD_NAME=${VITE_CLOUDINARY_CLOUD_NAME}
+ENV VITE_CLOUDINARY_UPLOAD_PRESET=${VITE_CLOUDINARY_UPLOAD_PRESET}
+
+RUN npm run build
+
+# ====== RUNTIME ======
+FROM nginx:1.27-alpine
+COPY --from=build /app/dist/ /usr/share/nginx/html/
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
